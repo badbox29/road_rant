@@ -415,6 +415,7 @@ async function ensureFontLoaded(fontFamily, fontWeight) {
     await ff.load();
     document.fonts.add(ff);
     _loadedFonts[cacheKey] = ff;
+    console.log(`[Fonts] Loaded: ${primary}`);
     return ff;
   } catch (e) {
     console.warn(`[Fonts] Failed to load ${primary}:`, e.message);
