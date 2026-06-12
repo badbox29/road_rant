@@ -7,23 +7,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#1B2A6B",
-      "stroke": null
+      "stroke": null,
+      "notes": "Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "1A2345B or 12A345B",
     "formatNotes": "Depends on county",
@@ -37,23 +38,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 706,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 959,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 226,
+        "y": 226,
+        "width": 959,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#0A0A0A",
-      "stroke": null
+      "stroke": null,
+      "notes": "Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC123",
     "formatNotes": "3 letters + 3 numbers",
@@ -67,24 +69,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#3D1F5C",
       "stroke": null,
-      "notes": "Deep purple text matching desert silhouette zone"
+      "notes": "Deep purple text matching desert silhouette zone; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC1234",
     "formatNotes": "Randomly generated 7-char alphanumeric",
@@ -99,22 +101,23 @@
     },
     "plateText": {
       "x": 693,
-      "y": 342,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 986,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 200,
+        "y": 226,
+        "width": 986,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#7B1F3A",
-      "stroke": null
+      "stroke": null,
+      "notes": "Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC12D",
     "formatNotes": "3 letters + 2 numbers + 1 letter",
@@ -128,24 +131,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#CC2200",
       "stroke": null,
-      "notes": "Red text matching script logo"
+      "notes": "Red text matching script logo; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "1ABC234",
     "formatNotes": "1 number + 3 letters + 3 numbers",
@@ -160,22 +163,23 @@
     },
     "plateText": {
       "x": 693,
-      "y": 342,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 187,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#1B5E20",
-      "stroke": null
+      "stroke": null,
+      "notes": "Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "123-ABC",
     "formatNotes": "3 numbers + 3 letters",
@@ -189,23 +193,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 679,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 173,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#1A237E",
-      "stroke": null
+      "stroke": null,
+      "notes": "Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "123ABC",
     "formatNotes": "3 numbers + 3 letters (no particular order)",
@@ -219,24 +224,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 759,
-      "y": 342,
+      "x": 693,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 639,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 440,
-        "y": 232,
-        "width": 639,
-        "height": 219
+        "x": 174,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 181,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#C9A84C",
       "stroke": null,
-      "notes": "Gold text on dark navy background"
+      "notes": "Gold text on dark navy background; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "123456",
     "formatNotes": "6 digits only, no letters",
@@ -250,23 +255,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 719,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1066,
       "safeArea": {
-        "x": 386,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 133,
+        "y": 226,
+        "width": 1066,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#005C35",
-      "stroke": null
+      "stroke": null,
+      "notes": "Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC D12 or 123 ABCD",
     "formatNotes": "6 alphanumeric chars, multiple configurations",
@@ -281,22 +287,23 @@
     },
     "plateText": {
       "x": 666,
-      "y": 342,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 693,
+      "maxWidth": 1092,
       "safeArea": {
-        "x": 320,
-        "y": 232,
-        "width": 693,
-        "height": 219
+        "x": 120,
+        "y": 226,
+        "width": 1092,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#111111",
-      "stroke": null
+      "stroke": null,
+      "notes": "Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC1234",
     "formatNotes": "3 letters + 4 numbers",
@@ -310,24 +317,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 719,
+      "x": 693,
       "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 386,
-        "y": 240,
-        "width": 666,
-        "height": 219
+        "x": 187,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#111111",
       "stroke": null,
-      "notes": "Black text on white plate with rainbow arc"
+      "notes": "Black text on white plate with rainbow arc; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC123",
     "formatNotes": "First letter indicates county of registration",
@@ -341,24 +348,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 733,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 400,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#FFFFFF",
       "stroke": null,
-      "notes": "White text on red/white/navy scenic plate"
+      "notes": "White text on red/white/navy scenic plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "1A BC234",
     "formatNotes": "First 2 chars = county of issuance",
@@ -373,23 +380,23 @@
     },
     "plateText": {
       "x": 693,
-      "y": 342,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 187,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#1A3A8F",
       "stroke": null,
-      "notes": "Blue script text on white-to-blue gradient, Lincoln portrait center"
+      "notes": "Blue script text on white-to-blue gradient, Lincoln portrait center; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "A12 3456 or AB 12345 or 123 356 or 123 4567",
     "formatNotes": "Multiple formats",
@@ -403,24 +410,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 733,
+      "x": 693,
       "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 639,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 414,
-        "y": 240,
-        "width": 639,
-        "height": 219
+        "x": 187,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#FFFFFF",
       "stroke": null,
-      "notes": "White text on solid dark navy background"
+      "notes": "White text on solid dark navy background; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "123 ABC",
     "formatNotes": "3 numbers + 3 letters",
@@ -435,23 +442,23 @@
     },
     "plateText": {
       "x": 693,
-      "y": 342,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 187,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#2B2B9E",
       "stroke": null,
-      "notes": "Deep blue text on light blue/white farm scene plate"
+      "notes": "Deep blue text on light blue/white farm scene plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 123",
     "formatNotes": "3 letters + 3 digits (standard)",
@@ -465,24 +472,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 719,
-      "y": 342,
+      "x": 693,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 639,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 400,
-        "y": 232,
-        "width": 639,
-        "height": 219
+        "x": 187,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#0D1F4C",
       "stroke": null,
-      "notes": "Dark navy text on light blue plate with state seal"
+      "notes": "Dark navy text on light blue plate with state seal; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "123ABC4",
     "formatNotes": "3 numbers + 3 letters + 1 number",
@@ -496,24 +503,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#002868",
       "stroke": null,
-      "notes": "Dark navy text on white-to-light-blue gradient"
+      "notes": "Dark navy text on white-to-light-blue gradient; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "123 ABC or ABC 123",
     "formatNotes": "Either order",
@@ -527,24 +534,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 719,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 386,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#CC1100",
       "stroke": null,
-      "notes": "Red text on warm gradient plate with pelican"
+      "notes": "Red text on warm gradient plate with pelican; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "123 ABC or ABC 123",
     "formatNotes": "Either order",
@@ -558,24 +565,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 719,
-      "y": 342,
+      "x": 706,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 613,
+      "maxWidth": 986,
       "safeArea": {
-        "x": 412,
-        "y": 232,
-        "width": 613,
-        "height": 219
+        "x": 213,
+        "y": 226,
+        "width": 986,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#111111",
       "stroke": null,
-      "notes": "Black text on white plate with chickadee/pine illustration"
+      "notes": "Black text on white plate with chickadee/pine illustration; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "1234 AB",
     "formatNotes": "4 numbers + 2 letters",
@@ -590,23 +597,23 @@
     },
     "plateText": {
       "x": 666,
-      "y": 342,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 333,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#111111",
       "stroke": null,
-      "notes": "Black script text on white plate with flag crest"
+      "notes": "Black script text on white plate with flag crest; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "1AB 2345",
     "formatNotes": "1 number + 2 stacked letters + 4 numbers",
@@ -620,24 +627,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#3355CC",
       "stroke": null,
-      "notes": "Blue text on white/light grey plate"
+      "notes": "Blue text on white/light grey plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "1ABC 23 or 1AB 234 or 123 AB4",
     "formatNotes": "Multiple formats",
@@ -652,23 +659,23 @@
     },
     "plateText": {
       "x": 626,
-      "y": 342,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 293,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 106,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#1A2B8F",
       "stroke": null,
-      "notes": "Dark blue text on light grey number zone; blue banner at top"
+      "notes": "Dark blue text on light grey number zone; blue banner at top; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 1234 or A12 34B",
     "formatNotes": "Multiple formats",
@@ -682,24 +689,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#1A237E",
       "stroke": null,
-      "notes": "Dark navy text on light blue lake scene plate"
+      "notes": "Dark navy text on light blue lake scene plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 123 or 123 ABC",
     "formatNotes": "Either order",
@@ -713,24 +720,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 653,
-      "y": 356,
+      "x": 666,
+      "y": 363,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1066,
       "safeArea": {
-        "x": 320,
-        "y": 250,
-        "width": 666,
-        "height": 212
+        "x": 133,
+        "y": 240,
+        "width": 1066,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 150,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 12,
+      "letterSpacing": 14,
       "fill": "#2D1B5E",
       "stroke": null,
-      "notes": "Dark purple text on colorful sunset/lighthouse plate"
+      "notes": "Dark purple text on colorful sunset/lighthouse plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 123",
     "formatNotes": "3 letters + 3 numbers",
@@ -744,24 +751,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#0D2B5E",
       "stroke": null,
-      "notes": "Dark navy text on light blue gradient with state outline"
+      "notes": "Dark navy text on light blue gradient with state outline; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "AB1 C3D",
     "formatNotes": "Mixed alphanumeric",
@@ -775,24 +782,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 746,
-      "y": 342,
+      "x": 693,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 599,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 446,
-        "y": 232,
-        "width": 599,
-        "height": 219
+        "x": 174,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#FFFFFF",
       "stroke": null,
-      "notes": "White text on solid dark blue background"
+      "notes": "White text on solid dark blue background; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "12 3456A",
     "formatNotes": "First 2 chars = county prefix; last 5 = plate number",
@@ -806,24 +813,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#CC1100",
       "stroke": null,
-      "notes": "Red script text on light blue/white plate with state outline"
+      "notes": "Red script text on light blue/white plate with state outline; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 123",
     "formatNotes": "3 letters + 3 numbers",
@@ -837,24 +844,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#0D1F4C",
       "stroke": null,
-      "notes": "Dark navy text on blue mountain/sunset scene"
+      "notes": "Dark navy text on blue mountain/sunset scene; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "123 ABC",
     "formatNotes": "3 numbers + 3 letters",
@@ -869,23 +876,23 @@
     },
     "plateText": {
       "x": 693,
-      "y": 342,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 187,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#1A6B3A",
       "stroke": null,
-      "notes": "Dark green text on light blue/white mountain scene"
+      "notes": "Dark green text on light blue/white mountain scene; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "123 4567",
     "formatNotes": "7 digits",
@@ -899,24 +906,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 706,
+      "x": 666,
       "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 626,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 393,
-        "y": 240,
-        "width": 626,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#111111",
       "stroke": null,
-      "notes": "Black text on yellow-to-white gradient plate"
+      "notes": "Black text on yellow-to-white gradient plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "A12 BCD",
     "formatNotes": "1 letter + 2 numbers + 3 letters",
@@ -930,24 +937,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 773,
-      "y": 342,
+      "x": 693,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 599,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 474,
-        "y": 232,
-        "width": 599,
-        "height": 219
+        "x": 187,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#CC2200",
       "stroke": null,
-      "notes": "Red text on bright yellow plate with Zia sun symbol and teal border"
+      "notes": "Red text on bright yellow plate with Zia sun symbol and teal border; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 123",
     "formatNotes": "3 letters + 3 numbers",
@@ -962,23 +969,23 @@
     },
     "plateText": {
       "x": 666,
-      "y": 342,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 599,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 366,
-        "y": 232,
-        "width": 599,
-        "height": 219
+        "x": 160,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#FFFFFF",
       "stroke": null,
-      "notes": "White text on light grey number zone; dark navy banner top and bottom"
+      "notes": "White text on light grey number zone; dark navy banner top and bottom; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 1234",
     "formatNotes": "3 letters + 4 numbers",
@@ -992,24 +999,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 733,
-      "y": 342,
+      "x": 693,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 599,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 434,
-        "y": 232,
-        "width": 599,
-        "height": 219
+        "x": 187,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#CC1100",
       "stroke": null,
-      "notes": "Red text on white plate with Wright Flyer and grass illustration"
+      "notes": "Red text on white plate with Wright Flyer and grass illustration; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 1234",
     "formatNotes": "3 letters + 4 numbers",
@@ -1023,24 +1030,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 746,
-      "y": 342,
+      "x": 693,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 613,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 440,
-        "y": 232,
-        "width": 613,
-        "height": 219
+        "x": 187,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#FFFFFF",
       "stroke": null,
-      "notes": "White text on black banner; number zone is sky blue gradient"
+      "notes": "White text on black banner; number zone is sky blue gradient; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 123 or 123 ABC",
     "formatNotes": "Either order",
@@ -1054,24 +1061,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 733,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 599,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 434,
-        "y": 232,
-        "width": 599,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#1A237E",
       "stroke": null,
-      "notes": "Dark navy script text on colorful scenic farm/sunrise plate"
+      "notes": "Dark navy script text on colorful scenic farm/sunrise plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 1234",
     "formatNotes": "3 letters + 4 numbers",
@@ -1085,24 +1092,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 653,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 366,
-        "y": 232,
-        "width": 653,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#C9A020",
       "stroke": null,
-      "notes": "Gold text on white/blue sky plate with archer statue"
+      "notes": "Gold text on white/blue sky plate with archer statue; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 123 or 123 ABC",
     "formatNotes": "Either order",
@@ -1116,24 +1123,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#1A237E",
       "stroke": null,
-      "notes": "Dark navy text on light blue/white mountain and tree plate"
+      "notes": "Dark navy text on light blue/white mountain and tree plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "123 ABC",
     "formatNotes": "3 numbers + 3 letters",
@@ -1148,23 +1155,23 @@
     },
     "plateText": {
       "x": 666,
-      "y": 342,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 586,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 373,
-        "y": 232,
-        "width": 586,
-        "height": 219
+        "x": 160,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#FFFFFF",
       "stroke": null,
-      "notes": "White text on white/grey number zone; navy top banner, yellow bottom strip"
+      "notes": "White text on white/grey number zone; navy top banner, yellow bottom strip; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 1234",
     "formatNotes": "3 letters + 4 numbers",
@@ -1178,24 +1185,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#1A237E",
       "stroke": null,
-      "notes": "Dark navy text on white/blue wave plate with anchor"
+      "notes": "Dark navy text on white/blue wave plate with anchor; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "123-456",
     "formatNotes": "6 digits only",
@@ -1209,24 +1216,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 746,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 599,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 446,
-        "y": 232,
-        "width": 599,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#1A1A4E",
       "stroke": null,
-      "notes": "Dark navy text on dramatic sunset/palmetto tree plate"
+      "notes": "Dark navy text on dramatic sunset/palmetto tree plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "AB 123",
     "formatNotes": "2 letters + 3 numbers",
@@ -1240,24 +1247,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 679,
-      "y": 383,
+      "x": 666,
+      "y": 376,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 626,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 366,
-        "y": 280,
-        "width": 626,
-        "height": 205
+        "x": 146,
+        "y": 266,
+        "width": 1039,
+        "height": 219
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 144,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 12,
+      "letterSpacing": 14,
       "fill": "#CC1100",
       "stroke": null,
-      "notes": "Red text on white/blue Mt Rushmore plate"
+      "notes": "Red text on white/blue Mt Rushmore plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "1AB 234 or 1A2 345 or 12A 345",
     "formatNotes": "Multiple formats",
@@ -1271,24 +1278,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 733,
-      "y": 342,
+      "x": 693,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 599,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 434,
-        "y": 232,
-        "width": 599,
-        "height": 219
+        "x": 187,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#111111",
       "stroke": null,
-      "notes": "Black script text on white/green misty mountain plate"
+      "notes": "Black script text on white/green misty mountain plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 1234 or 123 ABCD",
     "formatNotes": "Multiple formats",
@@ -1306,20 +1313,20 @@
       "y": 356,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 613,
+      "maxWidth": 1066,
       "safeArea": {
-        "x": 360,
-        "y": 246,
-        "width": 613,
-        "height": 219
+        "x": 133,
+        "y": 233,
+        "width": 1066,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#FFFFFF",
       "stroke": null,
-      "notes": "White text on full-bleed sky/flag plate with Lone Star tagline"
+      "notes": "White text on full-bleed sky/flag plate with Lone Star tagline; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 1234",
     "formatNotes": "3 letters + 4 numbers",
@@ -1334,23 +1341,23 @@
     },
     "plateText": {
       "x": 666,
-      "y": 342,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 599,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 366,
-        "y": 232,
-        "width": 599,
-        "height": 219
+        "x": 160,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#FFFFFF",
       "stroke": null,
-      "notes": "White text on orange banner; number zone is blue/grey ski scene"
+      "notes": "White text on orange banner; number zone is blue/grey ski scene; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "A12 3BC",
     "formatNotes": "1 letter + 2 numbers + 1 letter + 2 numbers... mixed",
@@ -1364,24 +1371,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 666,
-      "y": 342,
+      "x": 679,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 586,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 373,
-        "y": 232,
-        "width": 586,
-        "height": 219
+        "x": 173,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#FFFFFF",
       "stroke": null,
-      "notes": "White text on solid dark green plate \u2014 number zone IS the green background"
+      "notes": "White text on solid dark green plate \u2014 number zone IS the green background; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 123",
     "formatNotes": "3 letters + 3 numbers",
@@ -1396,23 +1403,23 @@
     },
     "plateText": {
       "x": 666,
-      "y": 342,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 693,
+      "maxWidth": 1092,
       "safeArea": {
-        "x": 320,
-        "y": 232,
-        "width": 693,
-        "height": 219
+        "x": 120,
+        "y": 226,
+        "width": 1092,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#2B3FA0",
       "stroke": null,
-      "notes": "Blue text on plain white/light grey plate \u2014 very clean minimal design"
+      "notes": "Blue text on plain white/light grey plate \u2014 very clean minimal design; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC 1234",
     "formatNotes": "3 letters + 4 numbers",
@@ -1426,24 +1433,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 719,
-      "y": 342,
+      "x": 693,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 599,
+      "maxWidth": 1012,
       "safeArea": {
-        "x": 420,
-        "y": 232,
-        "width": 599,
-        "height": 219
+        "x": 187,
+        "y": 226,
+        "width": 1012,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#CC1100",
       "stroke": null,
-      "notes": "Red text on white plate with Mt Rainier illustration"
+      "notes": "Red text on white plate with Mt Rainier illustration; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "ABC1234",
     "formatNotes": "3 letters + 4 numbers",
@@ -1457,24 +1464,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#002868",
       "stroke": null,
-      "notes": "Dark text on white number zone; navy+gold banner top, navy+gold stripes bottom"
+      "notes": "Dark text on white number zone; navy+gold banner top, navy+gold stripes bottom; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "1AB 234 or ABC 123",
     "formatNotes": "Multiple formats",
@@ -1488,24 +1495,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 599,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 394,
-        "y": 232,
-        "width": 599,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#CC2200",
       "stroke": null,
-      "notes": "Red text on white plate with farm scene banner"
+      "notes": "Red text on white plate with farm scene banner; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "123-ABC or ABC-123",
     "formatNotes": "Either order",
@@ -1519,24 +1526,24 @@
       "height": 684
     },
     "plateText": {
-      "x": 693,
-      "y": 342,
+      "x": 666,
+      "y": 349,
       "anchor": "middle",
       "baseline": "middle",
-      "maxWidth": 666,
+      "maxWidth": 1039,
       "safeArea": {
-        "x": 360,
-        "y": 232,
-        "width": 666,
-        "height": 219
+        "x": 146,
+        "y": 226,
+        "width": 1039,
+        "height": 246
       },
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
-      "fontSize": 157,
+      "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 13,
+      "letterSpacing": 14,
       "fill": "#FFFFFF",
       "stroke": "#111111",
-      "notes": "White text with black stroke on full-bleed scenic mountain/bronco photo"
+      "notes": "White text with black stroke on full-bleed scenic mountain/bronco photo; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
     },
     "serialFormat": "1A 2345 or 1/1A 2345",
     "formatNotes": "County number prefix + plate number",
