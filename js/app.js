@@ -387,6 +387,65 @@ function onStateSelected(stateKey) {
 
 // ── Plate canvas renderer ─────────────────────────────────────────
 
+// Core render: draws plate background + number onto any canvas element.
+// displayWidth/displayHeight are the canvas's pixel dimensions.
+function renderPlateOnCanvas(canvas, stateKey, plateNum) {
+  if (!canvas || !stateKey || !plateNum) return;
+  const config = state.platesConfig?.[stateKey];
+  if (!config) return;
+
+  const W   = canvas.width;
+  const H   = canvas.height;
+  const ctx = canvas.getContext('2d');
+  const pt  = config.plateText;
+
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+
+  img.onload = () => {
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(img, 0, 0, W, H);
+
+    // Scale text position from reference canvas (1332x684) to actual canvas size
+    const scaleX = W / 1332;
+    const scaleY = H / 684;
+    const scale  = Math.min(scaleX, scaleY);
+
+    const fontSize  = Math.round((pt.fontSize  || 157) * scale);
+    const x         = (pt.x || 666) * scaleX;
+    const y         = (pt.y || 342) * scaleY;
+    const maxWidth  = (pt.maxWidth || 1100) * scaleX;
+
+    ctx.font         = `${pt.fontWeight || '900'} ${fontSize}px ${pt.fontFamily || 'Arial Narrow, Arial, sans-serif'}`;
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle    = pt.fill || '#111111';
+
+    // Stroke pass first for plates with busy backgrounds (e.g. Wyoming)
+    if (pt.stroke) {
+      ctx.strokeStyle = pt.stroke;
+      ctx.lineWidth   = Math.max(4, Math.round(8 * scale));
+      ctx.lineJoin    = 'round';
+      ctx.strokeText(plateNum, x, y, maxWidth);
+    }
+    ctx.fillText(plateNum, x, y, maxWidth);
+  };
+
+  img.onerror = () => {
+    // Fallback: grey plate with text
+    ctx.fillStyle = '#cccccc';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#333333';
+    ctx.font      = `bold ${Math.round(H * 0.35)}px Arial Narrow, Arial, sans-serif`;
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(plateNum, W / 2, H / 2);
+  };
+
+  img.src = `plates/${stateKey}.png`;
+}
+
+// Render into the modal preview canvas
 function renderPlatePreview() {
   const stateKey = document.getElementById('incident-plate-state')?.value;
   const plateNum = document.getElementById('incident-plate-number')?.value?.trim().toUpperCase();
@@ -397,38 +456,33 @@ function renderPlatePreview() {
     if (wrap) wrap.style.display = 'none';
     return;
   }
-
-  const config = state.platesConfig?.[stateKey];
-  if (!config) { wrap.style.display = 'none'; return; }
+  if (!state.platesConfig?.[stateKey]) { wrap.style.display = 'none'; return; }
 
   wrap.style.display = '';
-  const ctx  = canvas.getContext('2d');
-  const W    = canvas.width;
-  const H    = canvas.height;
+  renderPlateOnCanvas(canvas, stateKey, plateNum);
+}
 
-  // Draw plate background image
-  const img = new Image();
-  img.onload = () => {
-    ctx.clearRect(0, 0, W, H);
-    ctx.drawImage(img, 0, 0, W, H);
+// Render a thumbnail into the drawer (small canvas injected above plate text)
+function renderDrawerThumbnail(stateKey, plateNum) {
+  const existing = document.getElementById('drawer-plate-canvas');
+  if (!stateKey || !plateNum || !state.platesConfig?.[stateKey]) {
+    if (existing) existing.remove();
+    return;
+  }
 
-    // Overlay plate number text
-    const pt = config.plateText;
-    ctx.font = `${pt.fontWeight || 'bold'} ${pt.fontSize || 120}px ${pt.fontFamily || 'Arial Narrow, Arial, sans-serif'}`;
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle    = pt.fill || '#111111';
+  let canvas = existing;
+  if (!canvas) {
+    canvas = document.createElement('canvas');
+    canvas.id     = 'drawer-plate-canvas';
+    canvas.width  = 400;
+    canvas.height = 205;
+    canvas.style.cssText = 'width:100%;max-width:200px;height:auto;display:block;border-radius:4px;margin-bottom:.4rem;border:1px solid var(--border);';
+    // Insert before the drawer-plate text element
+    const plateEl = document.getElementById('drawer-plate');
+    if (plateEl) plateEl.parentNode.insertBefore(canvas, plateEl);
+  }
 
-    // Stroke for plates with busy backgrounds (e.g. Wyoming)
-    if (pt.stroke) {
-      ctx.strokeStyle = pt.stroke;
-      ctx.lineWidth   = 6;
-      ctx.strokeText(plateNum, pt.x || W / 2, pt.y || H / 2, pt.maxWidth || W * 0.85);
-    }
-    ctx.fillText(plateNum, pt.x || W / 2, pt.y || H / 2, pt.maxWidth || W * 0.85);
-  };
-  img.onerror = () => { wrap.style.display = 'none'; };
-  img.src = `plates/${stateKey}.png`;
+  renderPlateOnCanvas(canvas, stateKey, plateNum);
 }
 
 // ── Map setup ─────────────────────────────────────────────────────
@@ -564,6 +618,9 @@ function openDrawer(incidentId) {
   document.getElementById('drawer-plate').textContent =
     inc.plateState && inc.plateNumber ? `${inc.plateState.replace(/_/g,' ')} · ${inc.plateNumber}` : '';
 
+  // Render plate thumbnail above the plate text
+  renderDrawerThumbnail(inc.plateState || null, inc.plateNumber ? inc.plateNumber.trim().toUpperCase() : null);
+
   // Count incidents for this plate to determine chalk-line eligibility
   const plateCount = (inc.plateState && inc.plateNumber)
     ? countPlateIncidents(inc.plateState, inc.plateNumber)
@@ -692,9 +749,8 @@ function enterChalkMode(plateState, plateNumber) {
 
   // Show banner
   const banner    = document.getElementById('chalk-banner');
-  const hullLabel = matchingPts.length >= 3 ? ' · hull active' : '';
   document.getElementById('chalk-banner-text').textContent =
-    `CHALK-LINE: ${plateState.replace(/_/g,' ')} · ${plateNumber} — ${matchingPts.length} incident${matchingPts.length !== 1 ? 's' : ''}${hullLabel}`;
+    `CHALK-LINE: ${plateState.replace(/_/g,' ')} · ${plateNumber} — ${matchingPts.length} incident${matchingPts.length !== 1 ? 's' : ''}`;
   banner.style.display = '';
 }
 
