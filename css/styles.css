@@ -513,6 +513,7 @@ select.input { cursor: pointer; appearance: none;
   border-radius: var(--r);
   overflow: hidden;
   border: 1px solid var(--border);
+  max-width: 100%;
 }
 #plate-canvas {
   display: block;
@@ -560,7 +561,7 @@ select.input { cursor: pointer; appearance: none;
   box-shadow: 0 24px 64px rgba(0,0,0,.6);
 }
 .modal-sm  { max-width: 400px; }
-.modal-incident { max-width: 560px; }
+.modal-incident { max-width: 860px; }
 .modal-feed { max-width: 620px; }
 .modal-friends { max-width: 540px; }
 .modal-settings { max-width: 500px; }
@@ -778,6 +779,42 @@ select.input { cursor: pointer; appearance: none;
 .rr-pin.chalk-highlight { background: var(--chalk-active) !important; box-shadow: 0 0 10px rgba(224,40,44,.7); transform: rotate(-45deg) scale(1.2); }
 .rr-pin.chalk-muted     { background: var(--chalk-muted) !important; opacity: .35; }
 
+
+/* ── Incident modal two-column layout (desktop) ─────────────────── */
+.incident-modal-cols {
+  display: flex;
+  gap: 1.1rem;
+  align-items: flex-start;
+}
+.incident-modal-left  { flex: 0 0 48%; min-width: 0; }
+.incident-modal-right { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .75rem; }
+
+.incident-mini-map-tall {
+  height: 300px;
+  border-radius: var(--r);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.incident-notes-tall .textarea {
+  min-height: 120px;
+}
+
+/* Repeat offender badge in drawer */
+.repeat-offender-badge {
+  background: rgba(224, 40, 44, 0.12);
+  border: 1px solid rgba(224, 40, 44, 0.3);
+  border-radius: var(--r);
+  color: var(--accent);
+  font-size: .78rem;
+  font-weight: 600;
+  padding: .4rem .7rem;
+  margin-bottom: .75rem;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
 /* ─────────────────────────────────────────────────────────────────
    LIGHT MODE (body.light)
    ───────────────────────────────────────────────────────────────── */
@@ -867,6 +904,15 @@ body.light .leaflet-container { background: #e8e8ef; }
   .chalk-banner { font-size: .72rem; padding: .3rem .65rem; }
   .map-legend { display: none; }
   .form-row { flex-direction: column; gap: 0; }
+
+  /* Stack two-column layout on mobile */
+  .incident-modal-cols { flex-direction: column; }
+  .incident-modal-left, .incident-modal-right { flex: none; width: 100%; }
+
+  /* Small plate preview on mobile */
+  .plate-preview-wrap { max-width: 220px; }
+  .incident-mini-map-tall { height: 180px; }
+  .incident-notes-tall .textarea { min-height: 80px; }
 }
 
 /* Very narrow (Galaxy Fold closed panel ~280px) */
