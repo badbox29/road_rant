@@ -406,26 +406,39 @@ function renderPlateOnCanvas(canvas, stateKey, plateNum) {
     ctx.clearRect(0, 0, W, H);
     ctx.drawImage(img, 0, 0, W, H);
 
-    // Canvas is always rendered at reference dimensions (1332x684).
-    // CSS handles display scaling — no math needed here.
-    const x        = pt.x        || 666;
-    const y        = pt.y        || 342;
-    const fontSize = pt.fontSize || 157;
-    const maxWidth = pt.maxWidth || 1100;
+    // Use safeArea width to auto-fit font size — handles any font fallback gracefully
+    const safeW    = (pt.safeArea?.width  || pt.maxWidth || 900);
+    const safeH    = (pt.safeArea?.height || 200);
+    const x        = pt.x || 666;
+    const y        = pt.y || 342;
+    const fontFam  = pt.fontFamily || 'Arial Narrow, Arial, sans-serif';
+    const fontWt   = pt.fontWeight || '700';
 
-    ctx.font = `${pt.fontWeight || '900'} ${fontSize}px ${pt.fontFamily || 'Arial Narrow, Arial, sans-serif'}`;
+    // Start at safeArea height as max font size, shrink until text fits width
+    let fontSize = Math.floor(safeH * 0.72);
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle    = pt.fill || '#111111';
 
-    // Stroke pass first for plates with busy backgrounds (e.g. Wyoming)
+    // Binary search for the largest font size that fits within safeW
+    let lo = 20, hi = fontSize;
+    while (lo < hi - 1) {
+      const mid = Math.floor((lo + hi) / 2);
+      ctx.font = `${fontWt} ${mid}px ${fontFam}`;
+      ctx.measureText(plateNum).width <= safeW ? (lo = mid) : (hi = mid);
+    }
+    fontSize = lo;
+    ctx.font = `${fontWt} ${fontSize}px ${fontFam}`;
+
+    ctx.fillStyle = pt.fill || '#111111';
+
+    // Stroke pass for busy backgrounds (e.g. Wyoming)
     if (pt.stroke) {
       ctx.strokeStyle = pt.stroke;
-      ctx.lineWidth   = Math.max(4, Math.round(8 * scale));
+      ctx.lineWidth   = Math.max(4, Math.round(fontSize * 0.08));
       ctx.lineJoin    = 'round';
-      ctx.strokeText(plateNum, x, y, maxWidth);
+      ctx.strokeText(plateNum, x, y);
     }
-    ctx.fillText(plateNum, x, y, maxWidth);
+    ctx.fillText(plateNum, x, y);
   };
 
   img.onerror = () => {
