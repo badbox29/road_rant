@@ -399,6 +399,7 @@ async function ensureFontLoaded(fontFamily, fontWeight) {
 
   // Map font name to file path
   const fontFiles = {
+    'License Plate USA':        'fonts/LICENSE_PLATE_USA.ttf',
     'Charles Wright':           'fonts/CharlesWright-Bold.otf',
     'Highway Gothic':           'fonts/HWYGOTH.TTF',
     'Highway Gothic Wide':      'fonts/HWYGEXPD.TTF',
