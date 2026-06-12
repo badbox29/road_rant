@@ -387,70 +387,140 @@ function onStateSelected(stateKey) {
 
 // ── Plate canvas renderer ─────────────────────────────────────────
 
-// Core render: draws plate background + number onto any canvas element.
-// displayWidth/displayHeight are the canvas's pixel dimensions.
-function renderPlateOnCanvas(canvas, stateKey, plateNum) {
+// ── Font preloader ────────────────────────────────────────────────
+// Cache of loaded FontFace objects keyed by family name
+const _loadedFonts = {};
+
+async function ensureFontLoaded(fontFamily, fontWeight) {
+  // Extract the first named font from the stack (strip quotes)
+  const primary = fontFamily.split(',')[0].trim().replace(/['"]/g, '');
+  const cacheKey = `${primary}::${fontWeight}`;
+  if (_loadedFonts[cacheKey]) return _loadedFonts[cacheKey];
+
+  // Map font name to file path
+  const fontFiles = {
+    'Charles Wright':        '../fonts/CharlesWright-Bold.otf',
+    'Highway Gothic':        '../fonts/HWYGOTH.TTF',
+    'Highway Gothic Wide':   '../fonts/HWYGEXPD.TTF',
+    'Highway Gothic Condensed': '../fonts/HWYGCOND.TTF',
+    'Highway Gothic Narrow': '../fonts/HWYGNRRW.TTF',
+    'Highway Gothic DE':     '../fonts/HWYGWDE.TTF',
+  };
+
+  const src = fontFiles[primary];
+  if (!src) return null; // system font, no loading needed
+
+  try {
+    const ff = new FontFace(primary, `url(${src})`, { weight: String(fontWeight || 700) });
+    await ff.load();
+    document.fonts.add(ff);
+    _loadedFonts[cacheKey] = ff;
+    return ff;
+  } catch (e) {
+    console.warn(`[Fonts] Failed to load ${primary}:`, e.message);
+    return null;
+  }
+}
+
+// Draw text with manual letter spacing (Canvas ignores CSS letter-spacing)
+function drawSpacedText(ctx, text, x, y, letterSpacing, maxWidth) {
+  if (!letterSpacing) { ctx.fillText(text, x, y, maxWidth); return; }
+
+  // Measure total width with spacing to center correctly
+  const chars   = text.split('');
+  const widths  = chars.map(c => ctx.measureText(c).width);
+  const totalW  = widths.reduce((a, b) => a + b, 0) + letterSpacing * (chars.length - 1);
+
+  let curX = x - totalW / 2;
+  ctx.textAlign = 'left';
+  chars.forEach((ch, i) => {
+    ctx.fillText(ch, curX, y);
+    curX += widths[i] + letterSpacing;
+  });
+  ctx.textAlign = 'center'; // restore
+}
+
+function drawSpacedStroke(ctx, text, x, y, letterSpacing) {
+  if (!letterSpacing) { ctx.strokeText(text, x, y); return; }
+  const chars  = text.split('');
+  const widths = chars.map(c => ctx.measureText(c).width);
+  const totalW = widths.reduce((a, b) => a + b, 0) + letterSpacing * (chars.length - 1);
+  let curX = x - totalW / 2;
+  ctx.textAlign = 'left';
+  chars.forEach((ch, i) => {
+    ctx.strokeText(ch, curX, y);
+    curX += widths[i] + letterSpacing;
+  });
+  ctx.textAlign = 'center';
+}
+
+// Core render: draws plate background + number onto a canvas.
+// Canvas should be at reference dimensions (1332x684); CSS scales display.
+async function renderPlateOnCanvas(canvas, stateKey, plateNum) {
   if (!canvas || !stateKey || !plateNum) return;
   const config = state.platesConfig?.[stateKey];
   if (!config) return;
 
+  const pt      = config.plateText;
+  const safeW   = pt.safeArea?.width  || pt.maxWidth || 900;
+  const safeH   = pt.safeArea?.height || 220;
+  const x       = pt.x || 666;
+  const y       = pt.y || 342;
+  const fontFam = pt.fontFamily || "'Charles Wright', 'Arial Narrow', Arial, sans-serif";
+  const fontWt  = pt.fontWeight || 700;
+  const spacing = pt.letterSpacing || 0;
+
+  // Ensure custom font is loaded before touching Canvas
+  await ensureFontLoaded(fontFam, fontWt);
+
   const W   = canvas.width;
   const H   = canvas.height;
   const ctx = canvas.getContext('2d');
-  const pt  = config.plateText;
 
-  const img = new Image();
-  img.crossOrigin = 'anonymous';
+  // Draw background image
+  await new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload  = () => { ctx.clearRect(0, 0, W, H); ctx.drawImage(img, 0, 0, W, H); resolve(); };
+    img.onerror = () => {
+      ctx.fillStyle = '#d0d0d0';
+      ctx.fillRect(0, 0, W, H);
+      resolve();
+    };
+    img.src = `plates/${stateKey}.png`;
+  });
 
-  img.onload = () => {
-    ctx.clearRect(0, 0, W, H);
-    ctx.drawImage(img, 0, 0, W, H);
+  // Binary search: largest font size where spaced text fits within safeW
+  ctx.textBaseline = 'middle';
+  ctx.textAlign    = 'center';
 
-    // Use safeArea width to auto-fit font size — handles any font fallback gracefully
-    const safeW    = (pt.safeArea?.width  || pt.maxWidth || 900);
-    const safeH    = (pt.safeArea?.height || 200);
-    const x        = pt.x || 666;
-    const y        = pt.y || 342;
-    const fontFam  = pt.fontFamily || 'Arial Narrow, Arial, sans-serif';
-    const fontWt   = pt.fontWeight || '700';
+  const primaryFont = fontFam.split(',')[0].trim().replace(/['"]/g, '');
 
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
+  function totalSpacedWidth(size) {
+    ctx.font = `${fontWt} ${size}px ${primaryFont}, Arial Narrow, Arial, sans-serif`;
+    const chars  = plateNum.split('');
+    const widths = chars.map(c => ctx.measureText(c).width);
+    return widths.reduce((a, b) => a + b, 0) + spacing * (chars.length - 1);
+  }
 
-    // Binary search: largest font that fits within safeW, ceiling = safeH
-    let lo = 20, hi = safeH;
-    while (lo < hi - 1) {
-      const mid = Math.floor((lo + hi) / 2);
-      ctx.font = `${fontWt} ${mid}px ${fontFam}`;
-      ctx.measureText(plateNum).width <= safeW ? (lo = mid) : (hi = mid);
-    }
-    const fontSize = lo;
-    ctx.font = `${fontWt} ${fontSize}px ${fontFam}`;
+  let lo = 40, hi = safeH;
+  while (lo < hi - 1) {
+    const mid = Math.floor((lo + hi) / 2);
+    totalSpacedWidth(mid) <= safeW ? (lo = mid) : (hi = mid);
+  }
+  const fontSize = lo;
+  ctx.font = `${fontWt} ${fontSize}px ${primaryFont}, Arial Narrow, Arial, sans-serif`;
 
-    ctx.fillStyle = pt.fill || '#111111';
+  // Stroke pass for busy backgrounds (Wyoming etc.)
+  if (pt.stroke) {
+    ctx.strokeStyle = pt.stroke;
+    ctx.lineWidth   = Math.max(4, Math.round(fontSize * 0.07));
+    ctx.lineJoin    = 'round';
+    drawSpacedStroke(ctx, plateNum, x, y, spacing);
+  }
 
-    // Stroke pass for busy backgrounds (e.g. Wyoming)
-    if (pt.stroke) {
-      ctx.strokeStyle = pt.stroke;
-      ctx.lineWidth   = Math.max(4, Math.round(fontSize * 0.08));
-      ctx.lineJoin    = 'round';
-      ctx.strokeText(plateNum, x, y);
-    }
-    ctx.fillText(plateNum, x, y);
-  };
-
-  img.onerror = () => {
-    // Fallback: grey plate with text
-    ctx.fillStyle = '#cccccc';
-    ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#333333';
-    ctx.font      = `bold ${Math.round(H * 0.35)}px Arial Narrow, Arial, sans-serif`;
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(plateNum, W / 2, H / 2);
-  };
-
-  img.src = `plates/${stateKey}.png`;
+  ctx.fillStyle = pt.fill || '#111111';
+  drawSpacedText(ctx, plateNum, x, y, spacing, safeW);
 }
 
 // Render into the modal preview canvas
@@ -470,7 +540,7 @@ function renderPlatePreview() {
   // Ensure canvas is at reference resolution so plates.json coords are correct
   canvas.width  = 1332;
   canvas.height = 684;
-  renderPlateOnCanvas(canvas, stateKey, plateNum);
+  renderPlateOnCanvas(canvas, stateKey, plateNum).catch(e => console.warn('[Plate preview]', e));
 }
 
 // Render a thumbnail into the drawer (small canvas injected above plate text)
@@ -493,7 +563,7 @@ function renderDrawerThumbnail(stateKey, plateNum) {
     if (plateEl) plateEl.parentNode.insertBefore(canvas, plateEl);
   }
 
-  renderPlateOnCanvas(canvas, stateKey, plateNum);
+  renderPlateOnCanvas(canvas, stateKey, plateNum).catch(e => console.warn('[Drawer thumb]', e));
 }
 
 // ── Map setup ─────────────────────────────────────────────────────
