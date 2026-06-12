@@ -414,19 +414,17 @@ function renderPlateOnCanvas(canvas, stateKey, plateNum) {
     const fontFam  = pt.fontFamily || 'Arial Narrow, Arial, sans-serif';
     const fontWt   = pt.fontWeight || '700';
 
-    // Start at safeArea height as max font size, shrink until text fits width
-    let fontSize = Math.floor(safeH * 0.72);
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
 
-    // Binary search for the largest font size that fits within safeW
-    let lo = 20, hi = fontSize;
+    // Binary search: largest font that fits within safeW, ceiling = safeH
+    let lo = 20, hi = safeH;
     while (lo < hi - 1) {
       const mid = Math.floor((lo + hi) / 2);
       ctx.font = `${fontWt} ${mid}px ${fontFam}`;
       ctx.measureText(plateNum).width <= safeW ? (lo = mid) : (hi = mid);
     }
-    fontSize = lo;
+    const fontSize = lo;
     ctx.font = `${fontWt} ${fontSize}px ${fontFam}`;
 
     ctx.fillStyle = pt.fill || '#111111';
