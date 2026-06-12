@@ -1,3 +1,47 @@
+/* ── Custom plate fonts ─────────────────────────────────────────── */
+@font-face {
+  font-family: 'Charles Wright';
+  src: url('../fonts/CharlesWright-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Highway Gothic';
+  src: url('../fonts/HWYGOTH.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Highway Gothic Wide';
+  src: url('../fonts/HWYGEXPD.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Highway Gothic Condensed';
+  src: url('../fonts/HWYGCOND.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Highway Gothic Narrow';
+  src: url('../fonts/HWYGNRRW.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Highway Gothic DE';
+  src: url('../fonts/HWYGWDE.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    Road Rant — styles.css
    Design system: aggressive/urban. Bebas Neue display, Inter body.
