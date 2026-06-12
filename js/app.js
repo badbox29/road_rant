@@ -399,12 +399,12 @@ async function ensureFontLoaded(fontFamily, fontWeight) {
 
   // Map font name to file path
   const fontFiles = {
-    'Charles Wright':        '../fonts/CharlesWright-Bold.otf',
-    'Highway Gothic':        '../fonts/HWYGOTH.TTF',
-    'Highway Gothic Wide':   '../fonts/HWYGEXPD.TTF',
-    'Highway Gothic Condensed': '../fonts/HWYGCOND.TTF',
-    'Highway Gothic Narrow': '../fonts/HWYGNRRW.TTF',
-    'Highway Gothic DE':     '../fonts/HWYGWDE.TTF',
+    'Charles Wright':           'fonts/CharlesWright-Bold.otf',
+    'Highway Gothic':           'fonts/HWYGOTH.TTF',
+    'Highway Gothic Wide':      'fonts/HWYGEXPD.TTF',
+    'Highway Gothic Condensed': 'fonts/HWYGCOND.TTF',
+    'Highway Gothic Narrow':    'fonts/HWYGNRRW.TTF',
+    'Highway Gothic DE':        'fonts/HWYGWDE.TTF',
   };
 
   const src = fontFiles[primary];
