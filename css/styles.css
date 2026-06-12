@@ -391,6 +391,16 @@ select.input { cursor: pointer; appearance: none;
   color: var(--accent);
 }
 
+#drawer-plate-canvas {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+  margin-bottom: .4rem;
+  border: 1px solid var(--border);
+}
+
 .drawer-body {
   flex: 1;
   overflow-y: auto;
