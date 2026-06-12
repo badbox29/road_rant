@@ -21,7 +21,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#1B2A6B",
       "stroke": null,
       "notes": "Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -52,7 +52,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#0A0A0A",
       "stroke": null,
       "notes": "Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -83,7 +83,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#3D1F5C",
       "stroke": null,
       "notes": "Deep purple text matching desert silhouette zone; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -114,7 +114,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#7B1F3A",
       "stroke": null,
       "notes": "Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -145,7 +145,7 @@
       "fontFamily": "Arial Narrow, Bahnschrift Condensed, Roboto Condensed, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#CC2200",
       "stroke": null,
       "notes": "Red text matching script logo; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -176,7 +176,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#1B5E20",
       "stroke": null,
       "notes": "Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -207,7 +207,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#1A237E",
       "stroke": null,
       "notes": "Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -238,7 +238,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 181,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#C9A84C",
       "stroke": null,
       "notes": "Gold text on dark navy background; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -269,7 +269,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#005C35",
       "stroke": null,
       "notes": "Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -287,7 +287,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 395,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1092,
@@ -300,7 +300,7 @@
       "fontFamily": "'Charles Wright', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#111111",
       "stroke": null,
       "notes": "Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -331,7 +331,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#111111",
       "stroke": null,
       "notes": "Black text on white plate with rainbow arc; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -362,7 +362,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on red/white/navy scenic plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -393,7 +393,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#1A3A8F",
       "stroke": null,
       "notes": "Blue script text on white-to-blue gradient, Lincoln portrait center; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -424,7 +424,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on solid dark navy background; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -455,7 +455,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#2B2B9E",
       "stroke": null,
       "notes": "Deep blue text on light blue/white farm scene plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -486,7 +486,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#0D1F4C",
       "stroke": null,
       "notes": "Dark navy text on light blue plate with state seal; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -517,7 +517,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#002868",
       "stroke": null,
       "notes": "Dark navy text on white-to-light-blue gradient; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -548,7 +548,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#CC1100",
       "stroke": null,
       "notes": "Red text on warm gradient plate with pelican; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -579,7 +579,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#111111",
       "stroke": null,
       "notes": "Black text on white plate with chickadee/pine illustration; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -610,7 +610,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#111111",
       "stroke": null,
       "notes": "Black script text on white plate with flag crest; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -641,7 +641,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#3355CC",
       "stroke": null,
       "notes": "Blue text on white/light grey plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -672,7 +672,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#1A2B8F",
       "stroke": null,
       "notes": "Dark blue text on light grey number zone; blue banner at top; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -703,7 +703,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#1A237E",
       "stroke": null,
       "notes": "Dark navy text on light blue lake scene plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -734,7 +734,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#2D1B5E",
       "stroke": null,
       "notes": "Dark purple text on colorful sunset/lighthouse plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -765,7 +765,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#0D2B5E",
       "stroke": null,
       "notes": "Dark navy text on light blue gradient with state outline; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -796,7 +796,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on solid dark blue background; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -827,7 +827,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#CC1100",
       "stroke": null,
       "notes": "Red script text on light blue/white plate with state outline; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -858,7 +858,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#0D1F4C",
       "stroke": null,
       "notes": "Dark navy text on blue mountain/sunset scene; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -889,7 +889,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#1A6B3A",
       "stroke": null,
       "notes": "Dark green text on light blue/white mountain scene; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -920,7 +920,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#111111",
       "stroke": null,
       "notes": "Black text on yellow-to-white gradient plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -951,7 +951,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#CC2200",
       "stroke": null,
       "notes": "Red text on bright yellow plate with Zia sun symbol and teal border; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -982,7 +982,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on light grey number zone; dark navy banner top and bottom; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1013,7 +1013,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#CC1100",
       "stroke": null,
       "notes": "Red text on white plate with Wright Flyer and grass illustration; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1044,7 +1044,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on black banner; number zone is sky blue gradient; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1075,7 +1075,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#1A237E",
       "stroke": null,
       "notes": "Dark navy script text on colorful scenic farm/sunrise plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1106,7 +1106,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#C9A020",
       "stroke": null,
       "notes": "Gold text on white/blue sky plate with archer statue; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1137,7 +1137,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#1A237E",
       "stroke": null,
       "notes": "Dark navy text on light blue/white mountain and tree plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1168,7 +1168,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on white/grey number zone; navy top banner, yellow bottom strip; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1199,7 +1199,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#1A237E",
       "stroke": null,
       "notes": "Dark navy text on white/blue wave plate with anchor; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1230,7 +1230,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#1A1A4E",
       "stroke": null,
       "notes": "Dark navy text on dramatic sunset/palmetto tree plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1261,7 +1261,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#CC1100",
       "stroke": null,
       "notes": "Red text on white/blue Mt Rushmore plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1292,7 +1292,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#111111",
       "stroke": null,
       "notes": "Black script text on white/green misty mountain plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1323,7 +1323,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on full-bleed sky/flag plate with Lone Star tagline; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1354,7 +1354,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on orange banner; number zone is blue/grey ski scene; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1385,7 +1385,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on solid dark green plate \u2014 number zone IS the green background; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1416,7 +1416,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#2B3FA0",
       "stroke": null,
       "notes": "Blue text on plain white/light grey plate \u2014 very clean minimal design; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1447,7 +1447,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#CC1100",
       "stroke": null,
       "notes": "Red text on white plate with Mt Rainier illustration; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1478,7 +1478,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#002868",
       "stroke": null,
       "notes": "Dark text on white number zone; navy+gold banner top, navy+gold stripes bottom; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1509,7 +1509,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#CC2200",
       "stroke": null,
       "notes": "Red text on white plate with farm scene banner; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
@@ -1540,7 +1540,7 @@
       "fontFamily": "'Charles Wright', 'Highway Gothic Wide', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
       "fontWeight": 700,
-      "letterSpacing": 14,
+      "letterSpacing": 6,
       "fill": "#FFFFFF",
       "stroke": "#111111",
       "notes": "White text with black stroke on full-bleed scenic mountain/bronco photo; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands."
