@@ -24,7 +24,10 @@
       "letterSpacing": 13,
       "fill": "#1B2A6B",
       "stroke": null
-    }
+    },
+    "serialFormat": "1A2345B or 12A345B",
+    "formatNotes": "Depends on county",
+    "plateSubType": false
   },
   "Alaska": {
     "file": "plates/Alaska.png",
@@ -51,7 +54,10 @@
       "letterSpacing": 13,
       "fill": "#0A0A0A",
       "stroke": null
-    }
+    },
+    "serialFormat": "ABC123",
+    "formatNotes": "3 letters + 3 numbers",
+    "plateSubType": false
   },
   "Arizona": {
     "file": "plates/Arizona.png",
@@ -79,7 +85,10 @@
       "fill": "#3D1F5C",
       "stroke": null,
       "notes": "Deep purple text matching desert silhouette zone"
-    }
+    },
+    "serialFormat": "ABC1234",
+    "formatNotes": "Randomly generated 7-char alphanumeric",
+    "plateSubType": false
   },
   "Arkansas": {
     "file": "plates/Arkansas.png",
@@ -106,7 +115,10 @@
       "letterSpacing": 13,
       "fill": "#7B1F3A",
       "stroke": null
-    }
+    },
+    "serialFormat": "ABC12D",
+    "formatNotes": "3 letters + 2 numbers + 1 letter",
+    "plateSubType": false
   },
   "California": {
     "file": "plates/California.png",
@@ -134,7 +146,10 @@
       "fill": "#CC2200",
       "stroke": null,
       "notes": "Red text matching script logo"
-    }
+    },
+    "serialFormat": "1ABC234",
+    "formatNotes": "1 number + 3 letters + 3 numbers",
+    "plateSubType": false
   },
   "Colorado": {
     "file": "plates/Colorado.png",
@@ -161,7 +176,10 @@
       "letterSpacing": 13,
       "fill": "#1B5E20",
       "stroke": null
-    }
+    },
+    "serialFormat": "123-ABC",
+    "formatNotes": "3 numbers + 3 letters",
+    "plateSubType": false
   },
   "Connecticut": {
     "file": "plates/Connecticut.png",
@@ -188,7 +206,10 @@
       "letterSpacing": 13,
       "fill": "#1A237E",
       "stroke": null
-    }
+    },
+    "serialFormat": "123ABC",
+    "formatNotes": "3 numbers + 3 letters (no particular order)",
+    "plateSubType": false
   },
   "Delaware": {
     "file": "plates/Delaware.png",
@@ -216,7 +237,10 @@
       "fill": "#C9A84C",
       "stroke": null,
       "notes": "Gold text on dark navy background"
-    }
+    },
+    "serialFormat": "123456",
+    "formatNotes": "6 digits only, no letters",
+    "plateSubType": false
   },
   "Florida": {
     "file": "plates/Florida.png",
@@ -243,7 +267,10 @@
       "letterSpacing": 13,
       "fill": "#005C35",
       "stroke": null
-    }
+    },
+    "serialFormat": "ABC D12 or 123 ABCD",
+    "formatNotes": "6 alphanumeric chars, multiple configurations",
+    "plateSubType": false
   },
   "Georgia": {
     "file": "plates/Georgia.png",
@@ -270,7 +297,10 @@
       "letterSpacing": 13,
       "fill": "#111111",
       "stroke": null
-    }
+    },
+    "serialFormat": "ABC1234",
+    "formatNotes": "3 letters + 4 numbers",
+    "plateSubType": false
   },
   "Hawaii": {
     "file": "plates/Hawaii.png",
@@ -298,7 +328,10 @@
       "fill": "#111111",
       "stroke": null,
       "notes": "Black text on white plate with rainbow arc"
-    }
+    },
+    "serialFormat": "ABC123",
+    "formatNotes": "First letter indicates county of registration",
+    "plateSubType": false
   },
   "Idaho": {
     "file": "plates/Idaho.png",
@@ -326,7 +359,10 @@
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on red/white/navy scenic plate"
-    }
+    },
+    "serialFormat": "1A BC234",
+    "formatNotes": "First 2 chars = county of issuance",
+    "plateSubType": false
   },
   "Illinois": {
     "file": "plates/Illinois.png",
@@ -354,7 +390,10 @@
       "fill": "#1A3A8F",
       "stroke": null,
       "notes": "Blue script text on white-to-blue gradient, Lincoln portrait center"
-    }
+    },
+    "serialFormat": "A12 3456 or AB 12345 or 123 356 or 123 4567",
+    "formatNotes": "Multiple formats",
+    "plateSubType": false
   },
   "Indiana": {
     "file": "plates/Indiana.png",
@@ -382,7 +421,10 @@
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on solid dark navy background"
-    }
+    },
+    "serialFormat": "123 ABC",
+    "formatNotes": "3 numbers + 3 letters",
+    "plateSubType": false
   },
   "Iowa": {
     "file": "plates/Iowa.png",
@@ -410,7 +452,10 @@
       "fill": "#2B2B9E",
       "stroke": null,
       "notes": "Deep blue text on light blue/white farm scene plate"
-    }
+    },
+    "serialFormat": "ABC 123",
+    "formatNotes": "3 letters + 3 digits (standard)",
+    "plateSubType": false
   },
   "Kansas": {
     "file": "plates/Kansas.png",
@@ -438,7 +483,10 @@
       "fill": "#0D1F4C",
       "stroke": null,
       "notes": "Dark navy text on light blue plate with state seal"
-    }
+    },
+    "serialFormat": "123ABC4",
+    "formatNotes": "3 numbers + 3 letters + 1 number",
+    "plateSubType": false
   },
   "Kentucky": {
     "file": "plates/Kentucky.png",
@@ -466,7 +514,10 @@
       "fill": "#002868",
       "stroke": null,
       "notes": "Dark navy text on white-to-light-blue gradient"
-    }
+    },
+    "serialFormat": "123 ABC or ABC 123",
+    "formatNotes": "Either order",
+    "plateSubType": false
   },
   "Louisiana": {
     "file": "plates/Louisiana.png",
@@ -494,7 +545,10 @@
       "fill": "#CC1100",
       "stroke": null,
       "notes": "Red text on warm gradient plate with pelican"
-    }
+    },
+    "serialFormat": "123 ABC or ABC 123",
+    "formatNotes": "Either order",
+    "plateSubType": false
   },
   "Maine": {
     "file": "plates/Maine.png",
@@ -522,7 +576,10 @@
       "fill": "#111111",
       "stroke": null,
       "notes": "Black text on white plate with chickadee/pine illustration"
-    }
+    },
+    "serialFormat": "1234 AB",
+    "formatNotes": "4 numbers + 2 letters",
+    "plateSubType": false
   },
   "Maryland": {
     "file": "plates/Maryland.png",
@@ -550,7 +607,10 @@
       "fill": "#111111",
       "stroke": null,
       "notes": "Black script text on white plate with flag crest"
-    }
+    },
+    "serialFormat": "1AB 2345",
+    "formatNotes": "1 number + 2 stacked letters + 4 numbers",
+    "plateSubType": false
   },
   "Massachusetts": {
     "file": "plates/Massachusetts.png",
@@ -578,7 +638,10 @@
       "fill": "#3355CC",
       "stroke": null,
       "notes": "Blue text on white/light grey plate"
-    }
+    },
+    "serialFormat": "1ABC 23 or 1AB 234 or 123 AB4",
+    "formatNotes": "Multiple formats",
+    "plateSubType": false
   },
   "Michigan": {
     "file": "plates/Michigan.png",
@@ -606,7 +669,10 @@
       "fill": "#1A2B8F",
       "stroke": null,
       "notes": "Dark blue text on light grey number zone; blue banner at top"
-    }
+    },
+    "serialFormat": "ABC 1234 or A12 34B",
+    "formatNotes": "Multiple formats",
+    "plateSubType": false
   },
   "Minnesota": {
     "file": "plates/Minnesota.png",
@@ -634,7 +700,10 @@
       "fill": "#1A237E",
       "stroke": null,
       "notes": "Dark navy text on light blue lake scene plate"
-    }
+    },
+    "serialFormat": "ABC 123 or 123 ABC",
+    "formatNotes": "Either order",
+    "plateSubType": false
   },
   "Mississippi": {
     "file": "plates/Mississippi.png",
@@ -662,7 +731,10 @@
       "fill": "#2D1B5E",
       "stroke": null,
       "notes": "Dark purple text on colorful sunset/lighthouse plate"
-    }
+    },
+    "serialFormat": "ABC 123",
+    "formatNotes": "3 letters + 3 numbers",
+    "plateSubType": false
   },
   "Missouri": {
     "file": "plates/Missouri.png",
@@ -690,7 +762,10 @@
       "fill": "#0D2B5E",
       "stroke": null,
       "notes": "Dark navy text on light blue gradient with state outline"
-    }
+    },
+    "serialFormat": "AB1 C3D",
+    "formatNotes": "Mixed alphanumeric",
+    "plateSubType": false
   },
   "Montana": {
     "file": "plates/Montana.png",
@@ -718,7 +793,10 @@
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on solid dark blue background"
-    }
+    },
+    "serialFormat": "12 3456A",
+    "formatNotes": "First 2 chars = county prefix; last 5 = plate number",
+    "plateSubType": false
   },
   "Nebraska": {
     "file": "plates/Nebraska.png",
@@ -746,7 +824,10 @@
       "fill": "#CC1100",
       "stroke": null,
       "notes": "Red script text on light blue/white plate with state outline"
-    }
+    },
+    "serialFormat": "ABC 123",
+    "formatNotes": "3 letters + 3 numbers",
+    "plateSubType": false
   },
   "Nevada": {
     "file": "plates/Nevada.png",
@@ -774,7 +855,10 @@
       "fill": "#0D1F4C",
       "stroke": null,
       "notes": "Dark navy text on blue mountain/sunset scene"
-    }
+    },
+    "serialFormat": "123 ABC",
+    "formatNotes": "3 numbers + 3 letters",
+    "plateSubType": false
   },
   "New_Hampshire": {
     "file": "plates/New_Hampshire.png",
@@ -802,7 +886,10 @@
       "fill": "#1A6B3A",
       "stroke": null,
       "notes": "Dark green text on light blue/white mountain scene"
-    }
+    },
+    "serialFormat": "123 4567",
+    "formatNotes": "7 digits",
+    "plateSubType": false
   },
   "New_Jersey": {
     "file": "plates/New_Jersey.png",
@@ -830,7 +917,10 @@
       "fill": "#111111",
       "stroke": null,
       "notes": "Black text on yellow-to-white gradient plate"
-    }
+    },
+    "serialFormat": "A12 BCD",
+    "formatNotes": "1 letter + 2 numbers + 3 letters",
+    "plateSubType": false
   },
   "New_Mexico": {
     "file": "plates/New_Mexico.png",
@@ -858,7 +948,10 @@
       "fill": "#CC2200",
       "stroke": null,
       "notes": "Red text on bright yellow plate with Zia sun symbol and teal border"
-    }
+    },
+    "serialFormat": "ABC 123",
+    "formatNotes": "3 letters + 3 numbers",
+    "plateSubType": false
   },
   "New_York": {
     "file": "plates/New_York.png",
@@ -886,7 +979,10 @@
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on light grey number zone; dark navy banner top and bottom"
-    }
+    },
+    "serialFormat": "ABC 1234",
+    "formatNotes": "3 letters + 4 numbers",
+    "plateSubType": false
   },
   "North_Carolina": {
     "file": "plates/North_Carolina.png",
@@ -914,7 +1010,10 @@
       "fill": "#CC1100",
       "stroke": null,
       "notes": "Red text on white plate with Wright Flyer and grass illustration"
-    }
+    },
+    "serialFormat": "ABC 1234",
+    "formatNotes": "3 letters + 4 numbers",
+    "plateSubType": false
   },
   "North_Dakota": {
     "file": "plates/North_Dakota.png",
@@ -942,7 +1041,10 @@
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on black banner; number zone is sky blue gradient"
-    }
+    },
+    "serialFormat": "ABC 123 or 123 ABC",
+    "formatNotes": "Either order",
+    "plateSubType": false
   },
   "Ohio": {
     "file": "plates/Ohio.png",
@@ -970,7 +1072,10 @@
       "fill": "#1A237E",
       "stroke": null,
       "notes": "Dark navy script text on colorful scenic farm/sunrise plate"
-    }
+    },
+    "serialFormat": "ABC 1234",
+    "formatNotes": "3 letters + 4 numbers",
+    "plateSubType": false
   },
   "Oklahoma": {
     "file": "plates/Oklahoma.png",
@@ -998,7 +1103,10 @@
       "fill": "#C9A020",
       "stroke": null,
       "notes": "Gold text on white/blue sky plate with archer statue"
-    }
+    },
+    "serialFormat": "ABC 123 or 123 ABC",
+    "formatNotes": "Either order",
+    "plateSubType": false
   },
   "Oregon": {
     "file": "plates/Oregon.png",
@@ -1026,7 +1134,10 @@
       "fill": "#1A237E",
       "stroke": null,
       "notes": "Dark navy text on light blue/white mountain and tree plate"
-    }
+    },
+    "serialFormat": "123 ABC",
+    "formatNotes": "3 numbers + 3 letters",
+    "plateSubType": false
   },
   "Pennsylvania": {
     "file": "plates/Pennsylvania.png",
@@ -1054,7 +1165,10 @@
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on white/grey number zone; navy top banner, yellow bottom strip"
-    }
+    },
+    "serialFormat": "ABC 1234",
+    "formatNotes": "3 letters + 4 numbers",
+    "plateSubType": false
   },
   "Rhode_Island": {
     "file": "plates/Rhode_Island.png",
@@ -1082,7 +1196,10 @@
       "fill": "#1A237E",
       "stroke": null,
       "notes": "Dark navy text on white/blue wave plate with anchor"
-    }
+    },
+    "serialFormat": "123-456",
+    "formatNotes": "6 digits only",
+    "plateSubType": false
   },
   "South_Carolina": {
     "file": "plates/South_Carolina.png",
@@ -1110,7 +1227,10 @@
       "fill": "#1A1A4E",
       "stroke": null,
       "notes": "Dark navy text on dramatic sunset/palmetto tree plate"
-    }
+    },
+    "serialFormat": "AB 123",
+    "formatNotes": "2 letters + 3 numbers",
+    "plateSubType": false
   },
   "South_Dakota": {
     "file": "plates/South_Dakota.png",
@@ -1138,7 +1258,10 @@
       "fill": "#CC1100",
       "stroke": null,
       "notes": "Red text on white/blue Mt Rushmore plate"
-    }
+    },
+    "serialFormat": "1AB 234 or 1A2 345 or 12A 345",
+    "formatNotes": "Multiple formats",
+    "plateSubType": false
   },
   "Tennessee": {
     "file": "plates/Tennessee.png",
@@ -1166,7 +1289,10 @@
       "fill": "#111111",
       "stroke": null,
       "notes": "Black script text on white/green misty mountain plate"
-    }
+    },
+    "serialFormat": "ABC 1234 or 123 ABCD",
+    "formatNotes": "Multiple formats",
+    "plateSubType": false
   },
   "Texas": {
     "file": "plates/Texas.png",
@@ -1194,7 +1320,10 @@
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on full-bleed sky/flag plate with Lone Star tagline"
-    }
+    },
+    "serialFormat": "ABC 1234",
+    "formatNotes": "3 letters + 4 numbers",
+    "plateSubType": false
   },
   "Utah": {
     "file": "plates/Utah.png",
@@ -1222,7 +1351,10 @@
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on orange banner; number zone is blue/grey ski scene"
-    }
+    },
+    "serialFormat": "A12 3BC",
+    "formatNotes": "1 letter + 2 numbers + 1 letter + 2 numbers... mixed",
+    "plateSubType": false
   },
   "Vermont": {
     "file": "plates/Vermont.png",
@@ -1250,7 +1382,10 @@
       "fill": "#FFFFFF",
       "stroke": null,
       "notes": "White text on solid dark green plate \u2014 number zone IS the green background"
-    }
+    },
+    "serialFormat": "ABC 123",
+    "formatNotes": "3 letters + 3 numbers",
+    "plateSubType": false
   },
   "Virginia": {
     "file": "plates/Virginia.png",
@@ -1278,7 +1413,10 @@
       "fill": "#2B3FA0",
       "stroke": null,
       "notes": "Blue text on plain white/light grey plate \u2014 very clean minimal design"
-    }
+    },
+    "serialFormat": "ABC 1234",
+    "formatNotes": "3 letters + 4 numbers",
+    "plateSubType": false
   },
   "Washington": {
     "file": "plates/Washington.png",
@@ -1306,7 +1444,10 @@
       "fill": "#CC1100",
       "stroke": null,
       "notes": "Red text on white plate with Mt Rainier illustration"
-    }
+    },
+    "serialFormat": "ABC1234",
+    "formatNotes": "3 letters + 4 numbers",
+    "plateSubType": false
   },
   "West_Virginia": {
     "file": "plates/West_Virginia.png",
@@ -1334,7 +1475,10 @@
       "fill": "#002868",
       "stroke": null,
       "notes": "Dark text on white number zone; navy+gold banner top, navy+gold stripes bottom"
-    }
+    },
+    "serialFormat": "1AB 234 or ABC 123",
+    "formatNotes": "Multiple formats",
+    "plateSubType": false
   },
   "Wisconsin": {
     "file": "plates/Wisconsin.png",
@@ -1362,7 +1506,10 @@
       "fill": "#CC2200",
       "stroke": null,
       "notes": "Red text on white plate with farm scene banner"
-    }
+    },
+    "serialFormat": "123-ABC or ABC-123",
+    "formatNotes": "Either order",
+    "plateSubType": false
   },
   "Wyoming": {
     "file": "plates/Wyoming.png",
@@ -1390,6 +1537,9 @@
       "fill": "#FFFFFF",
       "stroke": "#111111",
       "notes": "White text with black stroke on full-bleed scenic mountain/bronco photo"
-    }
+    },
+    "serialFormat": "1A 2345 or 1/1A 2345",
+    "formatNotes": "County number prefix + plate number",
+    "plateSubType": false
   }
 }

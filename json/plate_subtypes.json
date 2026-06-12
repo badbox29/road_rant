@@ -1,0 +1,13 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "notes": "Add state keys here when plateSubType is flipped to true in plates.json. Each entry in the array becomes an option in the specialty plate dropdown on the journal entry modal."
+  },
+  "Georgia": [
+    {
+      "id": "GA_STANDARD",
+      "label": "Standard",
+      "image": "Georgia.png"
+    }
+  ]
+}
