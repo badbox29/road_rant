@@ -406,17 +406,14 @@ function renderPlateOnCanvas(canvas, stateKey, plateNum) {
     ctx.clearRect(0, 0, W, H);
     ctx.drawImage(img, 0, 0, W, H);
 
-    // Scale text position from reference canvas (1332x684) to actual canvas size
-    const scaleX = W / 1332;
-    const scaleY = H / 684;
-    const scale  = Math.min(scaleX, scaleY);
+    // Canvas is always rendered at reference dimensions (1332x684).
+    // CSS handles display scaling — no math needed here.
+    const x        = pt.x        || 666;
+    const y        = pt.y        || 342;
+    const fontSize = pt.fontSize || 157;
+    const maxWidth = pt.maxWidth || 1100;
 
-    const fontSize  = Math.round((pt.fontSize  || 157) * scale);
-    const x         = (pt.x || 666) * scaleX;
-    const y         = (pt.y || 342) * scaleY;
-    const maxWidth  = (pt.maxWidth || 1100) * scaleX;
-
-    ctx.font         = `${pt.fontWeight || '900'} ${fontSize}px ${pt.fontFamily || 'Arial Narrow, Arial, sans-serif'}`;
+    ctx.font = `${pt.fontWeight || '900'} ${fontSize}px ${pt.fontFamily || 'Arial Narrow, Arial, sans-serif'}`;
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle    = pt.fill || '#111111';
@@ -459,6 +456,9 @@ function renderPlatePreview() {
   if (!state.platesConfig?.[stateKey]) { wrap.style.display = 'none'; return; }
 
   wrap.style.display = '';
+  // Ensure canvas is at reference resolution so plates.json coords are correct
+  canvas.width  = 1332;
+  canvas.height = 684;
   renderPlateOnCanvas(canvas, stateKey, plateNum);
 }
 
@@ -474,8 +474,8 @@ function renderDrawerThumbnail(stateKey, plateNum) {
   if (!canvas) {
     canvas = document.createElement('canvas');
     canvas.id     = 'drawer-plate-canvas';
-    canvas.width  = 400;
-    canvas.height = 205;
+    canvas.width  = 1332;
+    canvas.height = 684;
     canvas.style.cssText = 'width:100%;max-width:200px;height:auto;display:block;border-radius:4px;margin-bottom:.4rem;border:1px solid var(--border);';
     // Insert before the drawer-plate text element
     const plateEl = document.getElementById('drawer-plate');
@@ -1136,9 +1136,10 @@ document.getElementById('btn-drawer-close')?.addEventListener('click', () => {
 });
 
 document.getElementById('btn-drawer-edit')?.addEventListener('click', () => {
-  if (state.activeIncidentId) {
+  const editId = state.activeIncidentId;  // capture BEFORE closeDrawer clears it
+  if (editId) {
     closeDrawer();
-    openIncidentModal(state.activeIncidentId);
+    openIncidentModal(editId);
   }
 });
 
