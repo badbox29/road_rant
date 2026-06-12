@@ -564,8 +564,18 @@ function openDrawer(incidentId) {
   document.getElementById('drawer-plate').textContent =
     inc.plateState && inc.plateNumber ? `${inc.plateState.replace(/_/g,' ')} · ${inc.plateNumber}` : '';
 
+  // Count incidents for this plate to determine chalk-line eligibility
+  const plateCount = (inc.plateState && inc.plateNumber)
+    ? countPlateIncidents(inc.plateState, inc.plateNumber)
+    : 0;
+  const isRepeat   = plateCount >= 2;
+
   const sev = getSeverity(inc.incidentType);
   document.getElementById('drawer-body').innerHTML = `
+    ${isRepeat ? `
+    <div class="repeat-offender-badge">
+      ⚠ ${plateCount} incident${plateCount !== 1 ? 's' : ''} on record for this plate
+    </div>` : ''}
     <div class="detail-row">
       <span class="detail-label">Severity</span>
       <span class="detail-value"><span class="severity-pill ${sev}">${sev}</span></span>
@@ -595,11 +605,15 @@ function openDrawer(incidentId) {
     </div>
   `;
 
+  // Show chalk-line button only for repeat offenders (2+ incidents)
+  const chalkBtn = document.getElementById('btn-chalk-mode');
+  if (chalkBtn) chalkBtn.style.display = isRepeat ? '' : 'none';
+
   const drawer = document.getElementById('incident-drawer');
   drawer.classList.add('open');
   document.getElementById('map-wrapper').classList.add('drawer-open');
 
-  // Pan map to keep pin visible (offset for drawer)
+  // Pan map to keep pin visible
   if (inc.lat && inc.lng && state.mainMap) {
     state.mainMap.panTo([inc.lat, inc.lng], { animate: true });
   }
@@ -614,77 +628,100 @@ function closeDrawer() {
 
 // ── Chalk-line mode ───────────────────────────────────────────────
 
+// Count incidents matching a plate (normalized comparison)
+function countPlateIncidents(plateState, plateNumber) {
+  const normPlate = plateNumber.replace(/\s+/g, '').toUpperCase();
+  return state.incidents.filter(i =>
+    i.plateState === plateState &&
+    (i.plateNumber || '').replace(/\s+/g, '').toUpperCase() === normPlate &&
+    i.lat && i.lng
+  ).length;
+}
+
 function enterChalkMode(plateState, plateNumber) {
   state.chalkMode  = true;
   state.chalkPlate = { state: plateState, number: plateNumber };
 
-  const matchKey = `${plateState}::${plateNumber}`.toUpperCase();
+  const normPlate = plateNumber.replace(/\s+/g, '').toUpperCase();
 
-  // Restyle all pins
+  // Find all matching incidents — normalize both sides
+  const matchingIncs = state.incidents.filter(i =>
+    i.plateState === plateState &&
+    (i.plateNumber || '').replace(/\s+/g, '').toUpperCase() === normPlate &&
+    i.lat && i.lng
+  );
+  const matchingIds = new Set(matchingIncs.map(i => i.id));
+  const matchingPts = matchingIncs.map(i => [i.lat, i.lng]);
+
+  // Remove cluster layer, add markers directly so we can style individually
+  state.mainMap.removeLayer(state.markerCluster);
+  // Small delay to let cluster fully unload
   Object.entries(state.markers).forEach(([id, marker]) => {
-    const inc     = state.incidents.find(i => i.id === id);
+    const inc = state.incidents.find(i => i.id === id);
     if (!inc) return;
-    const incKey  = `${(inc.plateState||'')}::${(inc.plateNumber||'').replace(/\s+/g,'').toUpperCase()}`;
-    const isMatch = incKey === matchKey;
-    const sev     = getSeverity(inc.incidentType);
-    marker.setIcon(makePinIcon(sev, isMatch ? 'chalk-highlight' : 'chalk-muted'));
+    const sev = getSeverity(inc.incidentType);
+    if (matchingIds.has(id)) {
+      // Keep natural severity color — just ensure it's on the map directly
+      marker.setIcon(makePinIcon(sev));
+      marker.addTo(state.mainMap);
+    } else {
+      // Mute non-matching pins
+      marker.setIcon(makePinIcon(sev, 'chalk-muted'));
+      marker.addTo(state.mainMap);
+    }
   });
 
-  // Draw convex hull
-  const matchingPts = state.incidents
-    .filter(i => {
-      const k = `${(i.plateState||'')}::${(i.plateNumber||'').replace(/\s+/g,'').toUpperCase()}`;
-      return k === matchKey && i.lat && i.lng;
-    })
-    .map(i => [i.lat, i.lng]);
-
+  // Draw convex hull only for 3+ points
   if (state.chalkHull) { state.mainMap.removeLayer(state.chalkHull); state.chalkHull = null; }
 
   if (matchingPts.length >= 3) {
     const hull = convexHull(matchingPts);
     state.chalkHull = L.polygon(hull, {
-      color:       'var(--chalk-active)',
-      fillColor:   'var(--chalk-active)',
+      color:       '#e0282c',
+      fillColor:   '#e0282c',
       fillOpacity: 0.08,
       weight:      2,
       dashArray:   '6 4',
     }).addTo(state.mainMap);
     state.mainMap.fitBounds(L.latLngBounds(hull), { padding: [60, 60] });
   } else if (matchingPts.length === 2) {
-    state.mainMap.fitBounds(L.latLngBounds(matchingPts), { padding: [60, 60] });
+    state.mainMap.fitBounds(L.latLngBounds(matchingPts), { padding: [80, 80] });
   } else if (matchingPts.length === 1) {
     state.mainMap.setView(matchingPts[0], 14);
   }
 
   // Show banner
-  const banner = document.getElementById('chalk-banner');
+  const banner    = document.getElementById('chalk-banner');
+  const hullLabel = matchingPts.length >= 3 ? ' · hull active' : '';
   document.getElementById('chalk-banner-text').textContent =
-    `CHALK-LINE: ${plateState.replace(/_/g,' ')} · ${plateNumber} — ${matchingPts.length} incident${matchingPts.length !== 1 ? 's' : ''}`;
+    `CHALK-LINE: ${plateState.replace(/_/g,' ')} · ${plateNumber} — ${matchingPts.length} incident${matchingPts.length !== 1 ? 's' : ''}${hullLabel}`;
   banner.style.display = '';
-
-  // Expand cluster to show individual pins
-  state.markerCluster.disableClustering?.();
 }
 
 function exitChalkMode() {
   state.chalkMode  = false;
   state.chalkPlate = null;
 
-  // Restore pin colors
+  // Remove individually-added markers
+  Object.values(state.markers).forEach(m => {
+    if (state.mainMap.hasLayer(m)) state.mainMap.removeLayer(m);
+  });
+
+  // Restore cluster layer with default pin colors
   Object.entries(state.markers).forEach(([id, marker]) => {
     const inc = state.incidents.find(i => i.id === id);
     if (!inc) return;
     marker.setIcon(makePinIcon(getSeverity(inc.incidentType)));
   });
+  if (!state.mainMap.hasLayer(state.markerCluster)) {
+    state.mainMap.addLayer(state.markerCluster);
+  }
 
   // Remove hull
   if (state.chalkHull) { state.mainMap.removeLayer(state.chalkHull); state.chalkHull = null; }
 
   // Hide banner
   document.getElementById('chalk-banner').style.display = 'none';
-
-  // Re-enable clustering
-  state.markerCluster.enableClustering?.();
 }
 
 // ── Convex Hull (Graham scan) ─────────────────────────────────────
@@ -791,8 +828,12 @@ function renderMobileFeed() {
   if (!container) return;
 
   const recent = state.incidents.slice().sort((a, b) => new Date(b.datetime) - new Date(a.datetime)).slice(0, 10);
-  if (recent.length === 0) { container.innerHTML = ''; empty.style.display = ''; return; }
-  empty.style.display = 'none';
+  if (recent.length === 0) {
+    container.innerHTML = '';
+    if (empty) empty.style.display = '';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
 
   container.innerHTML = recent.map(inc => {
     const sev = getSeverity(inc.incidentType);
@@ -820,21 +861,27 @@ function openIncidentModal(editId = null) {
   title.textContent = editId ? 'Edit Incident' : 'Log Incident';
 
   if (editId) {
-    const inc = state.incidents.find(i => i.id === editId);
-    if (inc) populateIncidentForm(inc);
+    resetIncidentForm();
   } else {
     resetIncidentForm();
   }
 
   openModal('modal-incident');
 
-  // Init mini map after modal opens (needs visible container)
+  // Populate AFTER modal is visible so select options are rendered
   setTimeout(() => {
+    if (editId) {
+      const inc = state.incidents.find(i => i.id === editId);
+      if (inc) populateIncidentForm(inc);
+    }
+
     initMiniMap();
     if (editId) {
       const inc = state.incidents.find(i => i.id === editId);
       if (inc?.lat && inc?.lng) {
         state.miniMap.setView([inc.lat, inc.lng], 14);
+        if (state.miniMarker) state.miniMarker.setLatLng([inc.lat, inc.lng]);
+        else state.miniMarker = L.marker([inc.lat, inc.lng]).addTo(state.miniMap);
       }
     } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(pos => {
@@ -842,7 +889,7 @@ function openIncidentModal(editId = null) {
       }, () => {});
     }
     state.miniMap?.invalidateSize();
-  }, 120);
+  }, 150);
 }
 
 function resetIncidentForm() {
