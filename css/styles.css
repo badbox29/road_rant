@@ -1,5 +1,12 @@
 /* ── Custom plate fonts ─────────────────────────────────────────── */
 @font-face {
+  font-family: 'License Plate USA';
+  src: url('../fonts/LICENSE_PLATE_USA.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
   font-family: 'Charles Wright';
   src: url('../fonts/CharlesWright-Bold.otf') format('opentype');
   font-weight: 700;
