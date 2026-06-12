@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Road Rant</title>
+  <meta name="description" content="Log and track bad drivers near you." />
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Leaflet marker cluster -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+  <!-- Fonts: Bebas Neue (display) + Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async
+          onload="window.gisReady=true;window.dispatchEvent(new Event('gis-ready'))"></script>
+</head>
+<body>
+
+  <!-- ── Header ──────────────────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-icon">🚗</span>
+        <span class="brand-name">Road<span class="brand-accent">Rant</span></span>
+      </div>
+      <nav class="header-actions">
+        <button class="btn btn-primary" id="btn-new-incident" title="Log an incident">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span class="btn-label">Log Incident</span>
+        </button>
+        <button class="btn btn-icon" id="btn-my-incidents" title="My incident log">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </button>
+        <button class="btn btn-icon" id="btn-friends" title="Friends">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="friends-badge" id="friends-badge" style="display:none"></span>
+        </button>
+        <button class="btn btn-icon" id="btn-settings" title="Settings">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ── Main layout ──────────────────────────────────────────────── -->
+  <main class="main-layout">
+
+    <!-- Map (desktop: fills left/center; mobile: top section) -->
+    <div class="map-wrapper" id="map-wrapper">
+      <div id="main-map"></div>
+
+      <!-- Map overlay controls -->
+      <div class="map-controls">
+        <button class="map-ctrl-btn" id="btn-map-locate" title="Center on my location">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+        </button>
+        <button class="map-ctrl-btn" id="btn-map-fit" title="Fit all pins">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+        </button>
+      </div>
+
+      <!-- Chalk-line mode banner -->
+      <div class="chalk-banner" id="chalk-banner" style="display:none">
+        <span class="chalk-banner-text" id="chalk-banner-text"></span>
+        <button class="chalk-banner-close" id="btn-chalk-exit">✕ Exit</button>
+      </div>
+
+      <!-- Map legend -->
+      <div class="map-legend" id="map-legend">
+        <div class="legend-row"><span class="legend-dot critical"></span>Critical</div>
+        <div class="legend-row"><span class="legend-dot serious"></span>Serious</div>
+        <div class="legend-row"><span class="legend-dot moderate"></span>Moderate</div>
+        <div class="legend-row"><span class="legend-dot minor"></span>Minor</div>
+      </div>
+    </div>
+
+    <!-- Incident drawer (slides in from right on desktop; below map on mobile) -->
+    <aside class="incident-drawer" id="incident-drawer">
+      <div class="drawer-header">
+        <div class="drawer-title-row">
+          <h2 class="drawer-title" id="drawer-title">Incident Details</h2>
+          <button class="drawer-close" id="btn-drawer-close">✕</button>
+        </div>
+        <div class="drawer-plate" id="drawer-plate"></div>
+      </div>
+      <div class="drawer-body" id="drawer-body">
+        <!-- Populated by JS -->
+      </div>
+      <div class="drawer-actions" id="drawer-actions">
+        <button class="btn btn-ghost btn-sm" id="btn-drawer-edit">Edit</button>
+        <button class="btn btn-ghost btn-sm" id="btn-chalk-mode">🔍 Chalk-Line This Driver</button>
+        <button class="btn btn-danger btn-sm" id="btn-drawer-delete">Delete</button>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- ── Mobile feed (below map on mobile only) ───────────────────── -->
+  <section class="mobile-feed" id="mobile-feed">
+    <div class="mobile-feed-header">
+      <h2 class="mobile-feed-title">Recent Incidents</h2>
+      <select class="select-filter" id="mobile-filter-type">
+        <option value="all">All types</option>
+        <option value="critical">Critical</option>
+        <option value="serious">Serious</option>
+        <option value="moderate">Moderate</option>
+        <option value="minor">Minor</option>
+      </select>
+    </div>
+    <div class="mobile-feed-list" id="mobile-feed-list">
+      <div class="feed-empty" id="mobile-feed-empty">
+        <div class="feed-empty-icon">🛣️</div>
+        <p>No incidents logged yet.<br>Tap <strong>Log Incident</strong> to add one.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════
+       MODAL: Log / Edit Incident
+  ════════════════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-incident" role="dialog" aria-modal="true" aria-label="Log Incident">
+    <div class="modal modal-incident">
+      <div class="modal-header">
+        <h2 class="modal-title" id="incident-modal-title">Log Incident</h2>
+        <button class="modal-close" data-close="modal-incident">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Plate section -->
+        <div class="plate-section">
+          <div class="form-row">
+            <div class="form-group" style="flex:0 0 140px;">
+              <label class="form-label">State</label>
+              <select class="input" id="incident-plate-state">
+                <option value="">— State —</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label class="form-label">Plate Number</label>
+              <input type="text" class="input input-mono input-plate" id="incident-plate-number"
+                     placeholder="ABC 1234" maxlength="10" autocomplete="off" />
+            </div>
+          </div>
+          <!-- Sub-type dropdown (hidden unless plateSubType = true) -->
+          <div class="form-group" id="plate-subtype-group" style="display:none;">
+            <label class="form-label">Plate Type</label>
+            <select class="input" id="incident-plate-subtype">
+              <option value="">Standard</option>
+            </select>
+          </div>
+          <!-- Plate preview -->
+          <div class="plate-preview-wrap" id="plate-preview-wrap" style="display:none;">
+            <canvas id="plate-canvas" width="400" height="200"></canvas>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Incident Type</label>
+            <select class="input" id="incident-type">
+              <option value="">— Select type —</option>
+              <optgroup label="Critical">
+                <option value="road-rage">Road Rage</option>
+                <option value="reckless-driving">Reckless Driving</option>
+                <option value="impaired-driving">Impaired Driving</option>
+              </optgroup>
+              <optgroup label="Serious">
+                <option value="tailgating">Aggressive Tailgating</option>
+                <option value="unsafe-lane-change">Unsafe Lane Change</option>
+                <option value="distracted-driving">Distracted Driving</option>
+              </optgroup>
+              <optgroup label="Moderate">
+                <option value="failure-to-yield">Failure to Yield</option>
+                <option value="illegal-passing">Illegal Passing</option>
+                <option value="horn-gestures">Horn / Gestures</option>
+              </optgroup>
+              <optgroup label="Minor">
+                <option value="parking-violation">Parking Violation</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date &amp; Time</label>
+            <input type="datetime-local" class="input" id="incident-datetime" />
+          </div>
+        </div>
+
+        <!-- Vehicle description -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Make / Model</label>
+            <input type="text" class="input" id="incident-vehicle-make" placeholder="e.g. Toyota Camry" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Color</label>
+            <input type="text" class="input" id="incident-vehicle-color" placeholder="e.g. Silver" />
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div class="form-group">
+          <label class="form-label">Location <span class="form-hint-inline">Click pin on map or use current location</span></label>
+          <div class="location-row">
+            <input type="text" class="input" id="incident-location-name" placeholder="Street, intersection, or landmark…" readonly />
+            <button class="btn btn-sm btn-outline" id="btn-incident-locate">📍 My Location</button>
+          </div>
+          <input type="hidden" id="incident-lat" />
+          <input type="hidden" id="incident-lng" />
+        </div>
+
+        <!-- Mini map for pin placement -->
+        <div class="incident-mini-map" id="incident-mini-map"></div>
+
+        <!-- Notes -->
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea class="input textarea" id="incident-notes" rows="3"
+                    placeholder="What happened? Any details that might help…"></textarea>
+        </div>
+
+        <!-- Visibility -->
+        <div class="form-group">
+          <label class="form-label">Visibility</label>
+          <select class="input" id="incident-visibility">
+            <option value="private">🔒 Private — only you</option>
+            <option value="friends">👥 Friends — visible to your friends</option>
+            <option value="public">🌍 Public — anyone can see location</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-ghost" data-close="modal-incident">Cancel</button>
+          <button class="btn btn-primary" id="btn-save-incident">Save Incident</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════
+       MODAL: My Incidents (feed / list view)
+  ════════════════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-my-incidents" role="dialog" aria-modal="true" aria-label="My Incidents">
+    <div class="modal modal-feed">
+      <div class="modal-header">
+        <h2 class="modal-title">My Incidents</h2>
+        <div class="modal-header-actions">
+          <select class="select-filter" id="feed-filter-type">
+            <option value="all">All types</option>
+            <option value="critical">Critical</option>
+            <option value="serious">Serious</option>
+            <option value="moderate">Moderate</option>
+            <option value="minor">Minor</option>
+          </select>
+          <button class="modal-close" data-close="modal-my-incidents">✕</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="feed-search-row">
+          <input type="text" class="input" id="feed-search" placeholder="Search by plate, type, notes…" />
+        </div>
+        <div class="incident-feed" id="incident-feed">
+          <div class="feed-empty" id="feed-empty">
+            <div class="feed-empty-icon">🛣️</div>
+            <p>No incidents logged yet.</p>
+          </div>
+        </div>
+        <div class="pagination" id="feed-pagination"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════
+       MODAL: Friends / Social
+  ════════════════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-friends" role="dialog" aria-modal="true" aria-label="Friends">
+    <div class="modal modal-friends">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">Friends</h2>
+          <div class="friends-modal-username" id="friends-modal-username"></div>
+        </div>
+        <button class="modal-close" data-close="modal-friends">✕</button>
+      </div>
+      <div class="friends-tabs">
+        <button class="friends-tab active" data-tab="friends-list">Friends <span class="tab-badge" id="tab-badge-friends" style="display:none"></span></button>
+        <button class="friends-tab" data-tab="friends-requests">Requests <span class="tab-badge" id="tab-badge-requests" style="display:none"></span></button>
+        <button class="friends-tab" data-tab="friends-search">Search</button>
+        <button class="friends-tab" data-tab="friends-notifications">Alerts <span class="tab-badge" id="tab-badge-notifications" style="display:none"></span></button>
+      </div>
+      <div class="friends-tab-panel active" id="friends-list"><div class="widget-empty">No friends yet. Search to add someone.</div></div>
+      <div class="friends-tab-panel" id="friends-requests">
+        <div class="friends-section-heading">Incoming</div>
+        <div id="requests-incoming-content"><div class="widget-empty">No pending requests.</div></div>
+        <div class="friends-section-heading" style="margin-top:1rem;">Outgoing</div>
+        <div id="requests-outgoing-content"><div class="widget-empty">No outgoing requests.</div></div>
+      </div>
+      <div class="friends-tab-panel" id="friends-search">
+        <div class="friends-search-row">
+          <input type="text" class="input" id="friend-search-input" placeholder="Username or @username…" />
+          <button class="btn btn-sm btn-primary" id="btn-friend-search">Search</button>
+        </div>
+        <div id="friend-search-results"></div>
+      </div>
+      <div class="friends-tab-panel" id="friends-notifications">
+        <div id="notifications-content"><div class="widget-empty">No alerts yet.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════
+       MODAL: Settings
+  ════════════════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-settings" role="dialog" aria-modal="true" aria-label="Settings">
+    <div class="modal modal-settings">
+      <div class="modal-header">
+        <h2 class="modal-title">Settings</h2>
+        <button class="modal-close" data-close="modal-settings">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Sync & Account (Auth module) -->
+        <section class="settings-section">
+          <div class="settings-heading">
+            Sync &amp; Account
+            <span id="settings-auth-badge" class="auth-badge auth-badge-token">Token</span>
+          </div>
+          <div id="settings-guest-section" style="display:none;">
+            <p style="font-size:.85rem;opacity:.7;margin-bottom:.85rem;line-height:1.5;">
+              You're exploring as a guest. Data is saved on this device only.
+              Create an account to sync across devices.
+            </p>
+            <button class="btn btn-primary" id="btn-guest-create-account" style="width:100%;justify-content:center;">Create Account</button>
+          </div>
+          <div id="settings-token-group">
+            <div class="form-group">
+              <label class="form-label">User Token</label>
+              <input class="input input-mono" id="p-token" />
+              <div class="form-hint">Your unique ID. Use the same token on every device.</div>
+            </div>
+          </div>
+          <div id="settings-google-info" style="display:none;margin-bottom:.85rem;"></div>
+          <div id="settings-worker-group" class="form-group">
+            <label class="form-label">Worker URL</label>
+            <input class="input" id="p-worker-url" placeholder="https://your-worker.workers.dev" />
+            <div class="form-hint">Cloudflare Worker URL for sync.</div>
+          </div>
+          <div id="settings-sync-controls" class="sync-controls-row">
+            <span id="sync-indicator" class="sync-indicator-pill"></span>
+            <div class="sync-controls-btns">
+              <button class="btn btn-ghost btn-sm" id="btn-switch-account">Switch Account</button>
+              <button class="btn btn-outline btn-sm" id="btn-manual-sync">Sync Now</button>
+            </div>
+          </div>
+          <div id="settings-upgrade-google" style="display:none;margin-top:.85rem;padding-top:.85rem;border-top:1px solid var(--border);">
+            <p style="font-size:.82rem;opacity:.6;margin-bottom:.6rem;">Upgrade to Google sign-in for stronger security. One-way change.</p>
+            <button class="btn btn-ghost btn-sm" id="btn-upgrade-to-google">Upgrade to Google Sign-In →</button>
+          </div>
+        </section>
+
+        <!-- Profile -->
+        <section class="settings-section">
+          <h3 class="settings-heading">Profile</h3>
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <div class="token-row">
+              <input type="text" class="input" id="settings-username" placeholder="e.g. road_watcher" />
+              <button class="btn btn-sm btn-outline" id="btn-save-username">Save</button>
+            </div>
+            <p class="form-hint">Letters, numbers, - and _ only. 3–32 characters.</p>
+            <p class="form-hint" id="username-status"></p>
+          </div>
+        </section>
+
+        <!-- Display -->
+        <section class="settings-section">
+          <h3 class="settings-heading">Display</h3>
+          <div class="form-group">
+            <label class="form-label">Incidents per page</label>
+            <select class="input" id="settings-page-size">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Default map location</label>
+            <div class="token-row">
+              <input type="text" class="input" id="settings-home-location" placeholder="City, address, or zip…" />
+              <button class="btn btn-sm btn-outline" id="btn-set-home">Set</button>
+            </div>
+          </div>
+        </section>
+
+        <div class="form-actions">
+          <button class="btn btn-ghost" data-close="modal-settings">Cancel</button>
+          <button class="btn btn-primary" id="btn-save-settings">Save Settings</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════
+       MODAL: Delete confirmation
+  ════════════════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-delete" role="dialog" aria-modal="true" aria-label="Delete Incident">
+    <div class="modal modal-confirm">
+      <div class="modal-header">
+        <h2 class="modal-title">Delete Incident</h2>
+        <button class="modal-close" data-close="modal-delete">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="confirm-icon">🗑️</div>
+        <p class="confirm-message" id="delete-message"></p>
+        <p class="confirm-sub">This removes the incident from this device and from synced storage. Cannot be undone.</p>
+        <div class="confirm-actions">
+          <button class="btn btn-ghost" data-close="modal-delete">Cancel</button>
+          <button class="btn btn-danger" id="btn-confirm-delete">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════
+       MODAL: Account Setup Wizard (Auth module)
+  ════════════════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-account-setup" role="dialog" aria-modal="true" aria-label="Account Setup">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title" id="account-setup-title"></h2>
+      </div>
+      <div class="modal-body" id="account-setup-body"></div>
+    </div>
+  </div>
+
+  <!-- ── Footer ───────────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <span class="site-version">RoadRant <span class="version-badge">v1.0</span></span>
+  </footer>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Dark mode toggle -->
+  <div class="tdnn" onclick="tdnn()"><div class="moon"></div></div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
