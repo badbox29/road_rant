@@ -137,108 +137,120 @@
         <button class="modal-close" data-close="modal-incident">✕</button>
       </div>
       <div class="modal-body">
+        <div class="incident-modal-cols">
 
-        <!-- Plate section -->
-        <div class="plate-section">
-          <div class="form-row">
-            <div class="form-group" style="flex:0 0 140px;">
-              <label class="form-label">State</label>
-              <select class="input" id="incident-plate-state">
-                <option value="">— State —</option>
+          <!-- ── LEFT COLUMN: Plate + Vehicle + Type + Visibility ── -->
+          <div class="incident-modal-left">
+
+            <!-- Plate -->
+            <div class="plate-section">
+              <div class="form-row">
+                <div class="form-group" style="flex:0 0 130px;">
+                  <label class="form-label">State</label>
+                  <select class="input" id="incident-plate-state">
+                    <option value="">— State —</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex:1;">
+                  <label class="form-label">Plate Number</label>
+                  <input type="text" class="input input-mono input-plate" id="incident-plate-number"
+                         placeholder="ABC 1234" maxlength="10" autocomplete="off" />
+                </div>
+              </div>
+              <!-- Sub-type dropdown (hidden unless plateSubType = true) -->
+              <div class="form-group" id="plate-subtype-group" style="display:none;">
+                <label class="form-label">Plate Type</label>
+                <select class="input" id="incident-plate-subtype">
+                  <option value="">Standard</option>
+                </select>
+              </div>
+              <!-- Plate preview -->
+              <div class="plate-preview-wrap" id="plate-preview-wrap" style="display:none;">
+                <canvas id="plate-canvas" width="400" height="200"></canvas>
+              </div>
+            </div>
+
+            <!-- Incident type -->
+            <div class="form-group">
+              <label class="form-label">Incident Type</label>
+              <select class="input" id="incident-type">
+                <option value="">— Select type —</option>
+                <optgroup label="Critical">
+                  <option value="road-rage">Road Rage</option>
+                  <option value="reckless-driving">Reckless Driving</option>
+                  <option value="impaired-driving">Impaired Driving</option>
+                </optgroup>
+                <optgroup label="Serious">
+                  <option value="tailgating">Aggressive Tailgating</option>
+                  <option value="unsafe-lane-change">Unsafe Lane Change</option>
+                  <option value="distracted-driving">Distracted Driving</option>
+                </optgroup>
+                <optgroup label="Moderate">
+                  <option value="failure-to-yield">Failure to Yield</option>
+                  <option value="illegal-passing">Illegal Passing</option>
+                  <option value="horn-gestures">Horn / Gestures</option>
+                </optgroup>
+                <optgroup label="Minor">
+                  <option value="parking-violation">Parking Violation</option>
+                </optgroup>
               </select>
             </div>
-            <div class="form-group" style="flex:1;">
-              <label class="form-label">Plate Number</label>
-              <input type="text" class="input input-mono input-plate" id="incident-plate-number"
-                     placeholder="ABC 1234" maxlength="10" autocomplete="off" />
+
+            <!-- Vehicle -->
+            <div class="form-group">
+              <label class="form-label">Make / Model</label>
+              <input type="text" class="input" id="incident-vehicle-make" placeholder="e.g. Toyota Camry" />
             </div>
-          </div>
-          <!-- Sub-type dropdown (hidden unless plateSubType = true) -->
-          <div class="form-group" id="plate-subtype-group" style="display:none;">
-            <label class="form-label">Plate Type</label>
-            <select class="input" id="incident-plate-subtype">
-              <option value="">Standard</option>
-            </select>
-          </div>
-          <!-- Plate preview -->
-          <div class="plate-preview-wrap" id="plate-preview-wrap" style="display:none;">
-            <canvas id="plate-canvas" width="400" height="200"></canvas>
-          </div>
-        </div>
+            <div class="form-group">
+              <label class="form-label">Color</label>
+              <input type="text" class="input" id="incident-vehicle-color" placeholder="e.g. Silver" />
+            </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Incident Type</label>
-            <select class="input" id="incident-type">
-              <option value="">— Select type —</option>
-              <optgroup label="Critical">
-                <option value="road-rage">Road Rage</option>
-                <option value="reckless-driving">Reckless Driving</option>
-                <option value="impaired-driving">Impaired Driving</option>
-              </optgroup>
-              <optgroup label="Serious">
-                <option value="tailgating">Aggressive Tailgating</option>
-                <option value="unsafe-lane-change">Unsafe Lane Change</option>
-                <option value="distracted-driving">Distracted Driving</option>
-              </optgroup>
-              <optgroup label="Moderate">
-                <option value="failure-to-yield">Failure to Yield</option>
-                <option value="illegal-passing">Illegal Passing</option>
-                <option value="horn-gestures">Horn / Gestures</option>
-              </optgroup>
-              <optgroup label="Minor">
-                <option value="parking-violation">Parking Violation</option>
-              </optgroup>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Date &amp; Time</label>
-            <input type="datetime-local" class="input" id="incident-datetime" />
-          </div>
-        </div>
+            <!-- Visibility -->
+            <div class="form-group">
+              <label class="form-label">Visibility</label>
+              <select class="input" id="incident-visibility">
+                <option value="private">🔒 Private — only you</option>
+                <option value="friends">👥 Friends — visible to your friends</option>
+                <option value="public">🌍 Public — anyone can see location</option>
+              </select>
+            </div>
 
-        <!-- Vehicle description -->
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Make / Model</label>
-            <input type="text" class="input" id="incident-vehicle-make" placeholder="e.g. Toyota Camry" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Color</label>
-            <input type="text" class="input" id="incident-vehicle-color" placeholder="e.g. Silver" />
-          </div>
-        </div>
+          </div><!-- /.incident-modal-left -->
 
-        <!-- Location -->
-        <div class="form-group">
-          <label class="form-label">Location <span class="form-hint-inline">Click pin on map or use current location</span></label>
-          <div class="location-row">
-            <input type="text" class="input" id="incident-location-name" placeholder="Street, intersection, or landmark…" readonly />
-            <button class="btn btn-sm btn-outline" id="btn-incident-locate">📍 My Location</button>
-          </div>
-          <input type="hidden" id="incident-lat" />
-          <input type="hidden" id="incident-lng" />
-        </div>
+          <!-- ── RIGHT COLUMN: Date/Time + Location + Map + Notes ── -->
+          <div class="incident-modal-right">
 
-        <!-- Mini map for pin placement -->
-        <div class="incident-mini-map" id="incident-mini-map"></div>
+            <!-- Date & Time -->
+            <div class="form-group">
+              <label class="form-label">Date &amp; Time</label>
+              <input type="datetime-local" class="input" id="incident-datetime" />
+            </div>
 
-        <!-- Notes -->
-        <div class="form-group">
-          <label class="form-label">Notes</label>
-          <textarea class="input textarea" id="incident-notes" rows="3"
-                    placeholder="What happened? Any details that might help…"></textarea>
-        </div>
+            <!-- Location -->
+            <div class="form-group">
+              <label class="form-label">Location <span class="form-hint-inline">Click map or use current location</span></label>
+              <div class="location-row">
+                <input type="text" class="input" id="incident-location-name" placeholder="Street, intersection, or landmark…" readonly />
+                <button class="btn btn-sm btn-outline" id="btn-incident-locate">📍 My Location</button>
+              </div>
+              <input type="hidden" id="incident-lat" />
+              <input type="hidden" id="incident-lng" />
+            </div>
 
-        <!-- Visibility -->
-        <div class="form-group">
-          <label class="form-label">Visibility</label>
-          <select class="input" id="incident-visibility">
-            <option value="private">🔒 Private — only you</option>
-            <option value="friends">👥 Friends — visible to your friends</option>
-            <option value="public">🌍 Public — anyone can see location</option>
-          </select>
-        </div>
+            <!-- Map -->
+            <div class="incident-mini-map-tall" id="incident-mini-map"></div>
+
+            <!-- Notes -->
+            <div class="form-group incident-notes-tall">
+              <label class="form-label">Notes</label>
+              <textarea class="input textarea" id="incident-notes" rows="5"
+                        placeholder="What happened? Any details that might help…"></textarea>
+            </div>
+
+          </div><!-- /.incident-modal-right -->
+
+        </div><!-- /.incident-modal-cols -->
 
         <div class="form-actions">
           <button class="btn btn-ghost" data-close="modal-incident">Cancel</button>
