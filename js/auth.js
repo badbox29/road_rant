@@ -1027,49 +1027,6 @@ const Auth = (() => {
     const statusEl    = document.getElementById('auth-upgrade-status');
     const googleCtr   = document.getElementById('auth-upgrade-google-container');
 
-    // CRITICAL: capture oldToken NOW before signInWithGoogle runs.
-    // handleGoogleCredential overwrites getData().userToken with "google:<sub>".
-    // Reading it inside the .then() callback gives the Google key, not the token.
-    const oldToken = getData().userToken;
-
-    signInWithGoogle(googleCtr).then(async result => {
-      if(!result?.ok) {
-        statusEl.style.color = 'var(--red, #c07070)';
-        statusEl.textContent = 'Sign-in cancelled — try again.';
-        googleCtr.style.opacity = '1';
-        googleCtr.style.pointerEvents = 'auto';
-        return;
-      }
-
-      const base    = workerBase();
-      const idToken = store.get(C.storageAuthKey);
-      statusEl.style.color = 'var(--gold2, #b8985a)';
-      statusEl.textContent = 'Migrating account…';
-
-      try {
-        const res  = await fetch(`${base}/auth/migrate`, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ idToken, oldToken }),
-        });
-        const data = await res.json();
-        if(!res.ok || !data.ok) throw new Error(data.error || 'Migration failed');
-
-        const d = getData();
-        d.authMethod   = 'google';
-        d.linkedGoogle = data.profile;
-        d.userToken    = data.kvKey;
-        store.set(C.storageDismissKey, true);
-        C.setData(d);
-
-        C.closeModal('modal-account-setup');
-        C.toast('Account upgraded to Google sign-in ✓');
-      } catch(err) {
-        statusEl.style.color = 'var(--red, #c07070)';
-        statusEl.textContent = `Migration failed: ${err.message}`;
-      }
-    });
-
     async function unlockUpgrade() {
       const url = workerInput.value.trim();
       if(!url) { statusEl.style.color='var(--red,#c07070)'; statusEl.textContent='Enter a Worker URL first.'; return; }
@@ -1082,6 +1039,48 @@ const Auth = (() => {
         statusEl.textContent = 'Connected ✓ — sign in with Google below to complete upgrade.';
         googleCtr.style.opacity = '1';
         googleCtr.style.pointerEvents = 'auto';
+
+        // CRITICAL: capture oldToken NOW, immediately after worker confirmed,
+        // before signInWithGoogle runs — handleGoogleCredential will overwrite
+        // getData().userToken with "google:<sub>" during sign-in.
+        const oldToken = getData().userToken;
+
+        // Only start the Google sign-in flow once worker is confirmed
+        signInWithGoogle(googleCtr).then(async result => {
+          if(!result?.ok) {
+            statusEl.style.color = 'var(--red, #c07070)';
+            statusEl.textContent = 'Sign-in cancelled — try again.';
+            return;
+          }
+
+          const base    = workerBase();
+          const idToken = store.get(C.storageAuthKey);
+          statusEl.style.color = 'var(--gold2, #b8985a)';
+          statusEl.textContent = 'Migrating account…';
+
+          try {
+            const res  = await fetch(`${base}/auth/migrate`, {
+              method:  'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body:    JSON.stringify({ idToken, oldToken }),
+            });
+            const data = await res.json();
+            if(!res.ok || !data.ok) throw new Error(data.error || 'Migration failed');
+
+            const d = getData();
+            d.authMethod   = 'google';
+            d.linkedGoogle = data.profile;
+            d.userToken    = data.kvKey;
+            store.set(C.storageDismissKey, true);
+            C.setData(d);
+
+            C.closeModal('modal-account-setup');
+            C.toast('Account upgraded to Google sign-in ✓');
+          } catch(err) {
+            statusEl.style.color = 'var(--red, #c07070)';
+            statusEl.textContent = `Migration failed: ${err.message}`;
+          }
+        });
       } else {
         statusEl.style.color = 'var(--red, #c07070)';
         statusEl.textContent = 'Could not reach that URL — check it and try again.';
@@ -1089,7 +1088,7 @@ const Auth = (() => {
     }
 
     document.getElementById('auth-btn-test-worker').addEventListener('click', unlockUpgrade);
-    // Pre-test if worker URL already set — no click needed if already confirmed
+    // Pre-test if worker URL already set — triggers sign-in button automatically
     if(d.workerUrl) unlockUpgrade();
   }
 
