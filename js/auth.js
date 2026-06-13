@@ -166,7 +166,7 @@ const Auth = (() => {
       const idToken = store.get(C.storageAuthKey);
       return idToken ? { 'Authorization': `Bearer ${idToken}` } : {};
     }
-    try { return await _signRequest(method, token, body); } catch { return {}; }
+    try { return await _signRequest(method, token, body); } catch(e) { console.error('[Auth HMAC] _signRequest failed:', e, 'token:', token, 'method:', method); return {}; }
   }
 
   // ── Token generation ─────────────────────────────────────────────
