@@ -8,7 +8,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -38,16 +38,16 @@
       "height": 684
     },
     "plateText": {
-      "x": 706,
-      "y": 349,
+      "x": 820,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 959,
       "safeArea": {
-        "x": 226,
+        "x": 320,
         "y": 226,
-        "width": 959,
-        "height": 340
+        "width": 940,
+        "height": 280
       },
       "fontFamily": "'License Plate USA', 'Charles Wright', 'Arial Narrow', Arial, sans-serif",
       "fontSize": 188,
@@ -70,7 +70,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -101,7 +101,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 986,
@@ -132,7 +132,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -163,7 +163,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -194,7 +194,7 @@
     },
     "plateText": {
       "x": 679,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -225,7 +225,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -256,7 +256,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1066,
@@ -318,7 +318,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -349,7 +349,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -380,7 +380,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -411,7 +411,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -442,7 +442,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -473,7 +473,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -504,7 +504,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -535,7 +535,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -566,7 +566,7 @@
     },
     "plateText": {
       "x": 706,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 986,
@@ -597,7 +597,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -628,7 +628,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -659,7 +659,7 @@
     },
     "plateText": {
       "x": 626,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -690,7 +690,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -721,7 +721,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 363,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1066,
@@ -752,7 +752,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -783,7 +783,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -814,7 +814,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -845,7 +845,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -876,7 +876,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -907,7 +907,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -938,7 +938,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -969,7 +969,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -1000,7 +1000,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -1031,7 +1031,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -1062,7 +1062,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -1093,7 +1093,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -1124,7 +1124,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -1155,7 +1155,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -1186,7 +1186,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -1217,7 +1217,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -1248,7 +1248,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 376,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -1279,7 +1279,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -1310,7 +1310,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 356,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1066,
@@ -1341,7 +1341,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -1372,7 +1372,7 @@
     },
     "plateText": {
       "x": 679,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -1403,7 +1403,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1092,
@@ -1434,7 +1434,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -1465,7 +1465,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -1496,7 +1496,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
@@ -1527,7 +1527,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 349,
+      "y": 400,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1039,
