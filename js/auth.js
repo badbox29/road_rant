@@ -166,7 +166,7 @@ const Auth = (() => {
       const idToken = store.get(C.storageAuthKey);
       return idToken ? { 'Authorization': `Bearer ${idToken}` } : {};
     }
-    try { return await _signRequest(method, token, body); } catch(e) { console.error('[Auth HMAC] _signRequest failed:', e, 'token:', token, 'method:', method); return {}; }
+    try { return await _signRequest(method, token, body); } catch { return {}; }
   }
 
   // ── Token generation ─────────────────────────────────────────────
@@ -1303,6 +1303,9 @@ const Auth = (() => {
     // Token utilities — host app may need these
     generateToken,          // 128-bit base64url token
     isLegacyToken,          // detect old Math.random() tokens
+
+    // Request signing — host app uses this in workerFetch
+    _authHeaders,           // (method, token, body) → HMAC or Bearer headers
   };
 
 })();
