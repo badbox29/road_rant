@@ -1528,7 +1528,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       userName:     state.userName,    // pre-populates name field in account setup wizard
     }),
     setData: (d) => {
-      if (d.userToken    !== undefined) state.token        = d.userToken;
+      if (d.userToken) state.token = d.userToken; // only overwrite if non-null
       if (d.workerUrl    !== undefined) state.workerUrl    = d.workerUrl;
       if (d.authMethod   !== undefined) state.authMethod   = d.authMethod;
       if (d.linkedGoogle !== undefined) state.linkedGoogle = d.linkedGoogle;
@@ -1544,7 +1544,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       createdAt:    raw.createdAt    ?? Date.now(),
     }),
     onSignedIn: async (data, isNewAccount) => {
-      if (data.userToken    !== undefined) state.token        = data.userToken;
+      // data.userToken may be null for token accounts — the token was generated
+      // inside saveProfileToKV (pushToWorker) and already saved to state/localStorage.
+      // Only overwrite state.token if auth is explicitly providing one.
+      if (data.userToken) state.token = data.userToken;
       if (data.workerUrl    !== undefined) state.workerUrl    = data.workerUrl;
       if (data.authMethod   !== undefined) state.authMethod   = data.authMethod;
       if (data.linkedGoogle !== undefined) state.linkedGoogle = data.linkedGoogle;
