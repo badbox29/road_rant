@@ -1261,7 +1261,14 @@ function openSettingsModal() {
   if (userEl)   userEl.value   = state.username  || '';
   if (psEl)     psEl.value     = state.pageSize;
 
+  // Let auth module set badge + toggle section visibility
   Auth.renderSettingsSection();
+
+  // Additionally hide/show worker URL group based on auth state
+  // (Auth.renderSettingsSection handles token/google/guest groups but not this field)
+  const workerGroupEl = document.getElementById('settings-worker-group');
+  if (workerGroupEl) workerGroupEl.style.display = Auth.isGuest() ? 'none' : '';
+
   openModal('modal-settings');
 }
 
@@ -1371,27 +1378,26 @@ document.getElementById('btn-save-settings')?.addEventListener('click', saveSett
 
 document.getElementById('btn-switch-account')?.addEventListener('click', () => {
   closeModal('modal-settings');
-  // For guests: destructive wipe-and-switch flow
-  // For real accounts: go to S1 welcome to load a different account
   if (Auth.isGuest()) Auth.showGuestSwitchConfirm();
   else Auth.showAccountSetup();
 });
 
-document.getElementById('btn-guest-create-account')?.addEventListener('click', () => {
-  closeModal('modal-settings');
-  // Go to S1 welcome screen — lets user choose token vs Google, or load existing
-  Auth.showAccountSetup();
+// Event delegation on the settings modal for guest section buttons.
+// These buttons are dynamically shown/hidden so direct listeners can misfire.
+// setTimeout defers execution past DOM mutation caused by closeModal.
+document.getElementById('modal-settings')?.addEventListener('click', e => {
+  if (e.target.closest('#btn-guest-create-account')) {
+    setTimeout(() => { closeModal('modal-settings'); Auth.showSetupFresh(); }, 0);
+  }
+  if (e.target.closest('#btn-switch-account-guest')) {
+    setTimeout(() => { closeModal('modal-settings'); Auth.showGuestSwitchConfirm(); }, 0);
+  }
+  if (e.target.closest('#btn-upgrade-to-google')) {
+    setTimeout(() => { closeModal('modal-settings'); Auth.showGoogleUpgradeFlow(); }, 0);
+  }
 });
 
-document.getElementById('btn-switch-account-guest')?.addEventListener('click', () => {
-  closeModal('modal-settings');
-  Auth.showGuestSwitchConfirm();
-});
-
-document.getElementById('btn-upgrade-to-google')?.addEventListener('click', () => {
-  closeModal('modal-settings');
-  Auth.showGoogleUpgradeFlow();
-});
+// btn-upgrade-to-google handled via modal event delegation above
 
 document.getElementById('btn-manual-sync')?.addEventListener('click', async () => {
   showToast('Syncing…');
