@@ -181,9 +181,20 @@ async function handleAuth(url, method, request, env, cors) {
     const existing = await kv.get(`user:${oldToken}:profile`, { type: 'text' });
     if (!existing) return respond(JSON.stringify({ error: 'Source account not found' }), 404, cors);
     let parsed; try { parsed = JSON.parse(existing); } catch { return respond(JSON.stringify({ error: 'Corrupt data' }), 500, cors); }
-    const kvKey = `google:${payload.sub}`;
+    const kvKey    = `google:${payload.sub}`;
+    const newToken = kvKey; // alias for clarity
     parsed.authMethod = 'google'; parsed.linkedGoogle = payload; parsed.lastModified = Date.now();
-    await kv.put(kvKey, JSON.stringify(parsed), { expirationTtl: KV_TTL });
+
+    // Copy profile to new Google key (with /profile suffix to match storage route)
+    await kv.put(`user:${newToken}:profile`, JSON.stringify(parsed), { expirationTtl: KV_TTL });
+
+    // Copy incidents to new Google key if they exist
+    const oldIncidents = await kv.get(`user:${oldToken}:incidents`, { type: 'text' });
+    if (oldIncidents) {
+      await kv.put(`user:${newToken}:incidents`, oldIncidents, { expirationTtl: KV_TTL });
+    }
+
+    // Write tombstone so old token requests redirect to new key
     await kv.put(`migrated:${oldToken}`, kvKey, { expirationTtl: 60 * 60 * 24 * 90 });
     return respond(JSON.stringify({ ok: true, kvKey, profile: payload }), 200, cors);
   }
