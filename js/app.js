@@ -52,6 +52,7 @@ const state = {
   linkedGoogle: null,
   createdAt:    null,
   username:     null,
+  userName:     null,   // display name (free-form, not unique)
 
   // Social
   friends:      [],
@@ -154,6 +155,7 @@ function loadSettings() {
   state.workerUrl    = g('worker')     || '';
   state.authMethod   = g('auth_method')|| null;
   state.username     = g('username')   || null;
+  state.userName     = g('user_name')  || null;
   state.pageSize     = parseInt(g('page_size') || '20', 10);
   state.darkMode     = g('dark') !== 'false'; // default dark
 
@@ -184,6 +186,7 @@ function saveSettings() {
   s('worker',       state.workerUrl);
   s('auth_method',  state.authMethod);
   s('username',     state.username);
+  s('user_name',    state.userName);
   s('page_size',    state.pageSize);
   s('dark',         state.darkMode ? 'true' : 'false');
   s('linked_google', state.linkedGoogle ? JSON.stringify(state.linkedGoogle) : null);
@@ -298,6 +301,7 @@ async function saveProfileToKV() {
   if (!state.token) return;
   try {
     const profile = {
+      userName:     state.userName,
       username:     state.username,
       pageSize:     state.pageSize,
       darkMode:     state.darkMode,
@@ -333,6 +337,7 @@ async function loadProfileFromKV() {
     const json    = await res.json();
     const profile = json.value;
     if (!profile) return;
+    if (profile.userName)     state.userName     = profile.userName;
     if (profile.username)     state.username     = profile.username;
     if (profile.pageSize)     state.pageSize     = profile.pageSize;
     if (profile.authMethod)   state.authMethod   = profile.authMethod;
@@ -1268,13 +1273,15 @@ function openSettingsModal() {
   // Populate fields
   const tokenEl  = document.getElementById('p-token');
   const workerEl = document.getElementById('p-worker-url');
-  const userEl   = document.getElementById('settings-username');
-  const psEl     = document.getElementById('settings-page-size');
+  const userEl     = document.getElementById('settings-username');
+  const userNameEl = document.getElementById('settings-user-name');
+  const psEl       = document.getElementById('settings-page-size');
 
-  if (tokenEl)  tokenEl.value  = state.token    || '';
-  if (workerEl) workerEl.value = state.workerUrl || '';
-  if (userEl)   userEl.value   = state.username  || '';
-  if (psEl)     psEl.value     = state.pageSize;
+  if (tokenEl)    tokenEl.value    = state.token    || '';
+  if (workerEl)   workerEl.value   = state.workerUrl || '';
+  if (userEl)     userEl.value     = state.username  || '';
+  if (userNameEl) userNameEl.value = state.userName  || '';
+  if (psEl)       psEl.value       = state.pageSize;
 
   // Let auth module set badge + toggle section visibility
   Auth.renderSettingsSection();
@@ -1391,6 +1398,16 @@ document.getElementById('btn-incident-locate')?.addEventListener('click', () => 
 
 document.getElementById('btn-save-settings')?.addEventListener('click', saveSettings_modal);
 
+document.getElementById('btn-save-user-name')?.addEventListener('click', () => {
+  const el      = document.getElementById('settings-user-name');
+  const name    = el?.value.trim() || '';
+  const hint    = el?.closest('.form-group')?.querySelector('.form-hint');
+  state.userName = name || null;
+  saveSettings();
+  if (hint) { hint.style.color = 'var(--green, #6daa8f)'; hint.textContent = 'Saved ✓'; }
+  setTimeout(() => { if (hint) { hint.style.color = ''; hint.textContent = 'How you appear on incident reports. Not unique.'; } }, 2500);
+});
+
 document.getElementById('btn-save-username')?.addEventListener('click', async () => {
   const userEl   = document.getElementById('settings-username');
   const username = userEl?.value.trim() || '';
@@ -1504,6 +1521,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       authMethod:   state.authMethod,
       linkedGoogle: state.linkedGoogle,
       createdAt:    state.createdAt,
+      userName:     state.userName,    // pre-populates name field in account setup wizard
     }),
     setData: (d) => {
       if (d.userToken    !== undefined) state.token        = d.userToken;
@@ -1511,6 +1529,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (d.authMethod   !== undefined) state.authMethod   = d.authMethod;
       if (d.linkedGoogle !== undefined) state.linkedGoogle = d.linkedGoogle;
       if (d.createdAt    !== undefined) state.createdAt    = d.createdAt;
+      if (d.userName     !== undefined) state.userName     = d.userName;
       saveSettings();
     },
     mergeData: (raw) => ({
