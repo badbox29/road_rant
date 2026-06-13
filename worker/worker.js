@@ -26,7 +26,6 @@
  *   DELETE /plates/:state/:plate/:id  Remove incident from plate index
  */
 
-const GOOGLE_CLIENT_ID = ''; // Set your Google OAuth Client ID here
 
 const KV_BINDING        = 'ROAD_RANT_KV';
 const KV_TTL            = 60 * 60 * 24 * 1825; // 5 years
@@ -115,7 +114,7 @@ async function checkKvAuth(request, token, cors, body) {
     const auth    = request.headers.get('Authorization') || '';
     const idToken = auth.startsWith('Bearer ') ? auth.slice(7) : '';
     if (!idToken) return { ok: false, response: respond(JSON.stringify({ error: 'Authorization required' }), 401, cors) };
-    const payload = await verifyGoogleJWT(idToken);
+    const payload = await verifyGoogleJWT(idToken, env.GOOGLE_CLIENT_ID);
     if (!payload) return { ok: false, response: respond(JSON.stringify({ error: 'Invalid Google token' }), 401, cors) };
     if (token !== `google:${payload.sub}`) return { ok: false, response: respond(JSON.stringify({ error: 'Token mismatch' }), 403, cors) };
     return { ok: true };
@@ -127,15 +126,15 @@ async function checkKvAuth(request, token, cors, body) {
 
 // ── Google JWT ────────────────────────────────────────────────────
 
-async function verifyGoogleJWT(idToken) {
-  if (!GOOGLE_CLIENT_ID) return null;
+async function verifyGoogleJWT(idToken, clientId) {
+  if (!clientId) return null;
   try {
     const parts   = idToken.split('.');
     if (parts.length !== 3) return null;
     const header  = JSON.parse(atob(parts[0].replace(/-/g,'+').replace(/_/g,'/')));
     const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
     const now     = Math.floor(Date.now() / 1000);
-    if (payload.exp < now || payload.aud !== GOOGLE_CLIENT_ID || !payload.sub) return null;
+    if (payload.exp < now || payload.aud !== clientId || !payload.sub) return null;
     if (!['accounts.google.com','https://accounts.google.com'].includes(payload.iss)) return null;
 
     const jwksRes = await fetch('https://www.googleapis.com/oauth2/v3/certs');
@@ -160,14 +159,14 @@ async function handleAuth(url, method, request, env, cors) {
 
   if (url.pathname === '/auth/google' && method === 'POST') {
     let body; try { body = await request.json(); } catch { return respond(JSON.stringify({ error: 'Bad body' }), 400, cors); }
-    const payload = await verifyGoogleJWT(body.idToken);
+    const payload = await verifyGoogleJWT(body.idToken, env.GOOGLE_CLIENT_ID);
     if (!payload) return respond(JSON.stringify({ error: 'Invalid Google token' }), 401, cors);
     return respond(JSON.stringify({ ok: true, kvKey: `google:${payload.sub}`, profile: payload }), 200, cors);
   }
 
   if (url.pathname === '/auth/verify' && method === 'POST') {
     let body; try { body = await request.json(); } catch { return respond(JSON.stringify({ error: 'Bad body' }), 400, cors); }
-    const payload = await verifyGoogleJWT(body.idToken);
+    const payload = await verifyGoogleJWT(body.idToken, env.GOOGLE_CLIENT_ID);
     if (!payload) return respond(JSON.stringify({ ok: false, error: 'Token expired' }), 401, cors);
     return respond(JSON.stringify({ ok: true, profile: payload }), 200, cors);
   }
@@ -176,7 +175,7 @@ async function handleAuth(url, method, request, env, cors) {
     let body; try { body = await request.json(); } catch { return respond(JSON.stringify({ error: 'Bad body' }), 400, cors); }
     const { idToken, oldToken } = body || {};
     if (!idToken || !oldToken || !isValidToken(oldToken)) return respond(JSON.stringify({ error: 'idToken and valid oldToken required' }), 400, cors);
-    const payload = await verifyGoogleJWT(idToken);
+    const payload = await verifyGoogleJWT(idToken, env.GOOGLE_CLIENT_ID);
     if (!payload) return respond(JSON.stringify({ error: 'Invalid Google token' }), 401, cors);
     const existing = await kv.get(`user:${oldToken}:profile`, { type: 'text' });
     if (!existing) return respond(JSON.stringify({ error: 'Source account not found' }), 404, cors);
