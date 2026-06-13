@@ -1514,7 +1514,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Auth module init
   Auth.init({
-    googleClientId:    '',   // Set your Google Client ID
+    googleClientId:    '816310286560-d08hi4tec6ld1pia72aui5e6kjv1jcmg.apps.googleusercontent.com',
     storageKey:        STORAGE_KEY,
     storageAuthKey:    STORAGE_AUTH,
     storageDismissKey: STORAGE_DISMISS,
@@ -1569,7 +1569,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderMapPins();
       renderMobileFeed();
     },
-    onSessionExpired: () => {},
+    onSessionExpired: () => {
+      // Google ID token expired — show a toast and re-trigger sign-in flow
+      showToast('Session expired — please sign in with Google again.');
+      Auth.showAccountSetup();
+    },
     pushToWorker:  () => saveProfileToKV(),
     startSyncPing: () => {},
     openModal,

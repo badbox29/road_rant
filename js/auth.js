@@ -278,7 +278,7 @@ const Auth = (() => {
     // Step 2: try to load existing account from Google KV key
     let remote = null;
     try {
-      const res = await fetch(`${base}/kv/${encodeURIComponent(kvKey)}`, {
+      const res = await fetch(`${base}/storage/${encodeURIComponent(kvKey)}/profile`, {
         headers: { 'Authorization': `Bearer ${idToken}` },
       });
       if(res.ok) remote = await res.json();
@@ -478,11 +478,14 @@ const Auth = (() => {
     // Best-effort push back under the new token
     const base = (data.workerUrl || getData()?.workerUrl || '').replace(/\/+$/, '');
     if(base) {
-      fetch(`${base}/kv/${encodeURIComponent(newToken)}`, {
-        method:  'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(data),
-      }).catch(() => {}); // best-effort; sync ping will retry on failure
+      const body = JSON.stringify(data);
+      _authHeaders('PUT', newToken, body).then(authHdrs => {
+        fetch(`${base}/storage/${encodeURIComponent(newToken)}/profile`, {
+          method:  'PUT',
+          headers: { 'Content-Type': 'application/json', ...authHdrs },
+          body,
+        }).catch(() => {}); // best-effort; sync ping will retry on failure
+      }).catch(() => {});
     }
     C.toast('Account security upgraded automatically ✓');
     return data;
@@ -802,7 +805,7 @@ const Auth = (() => {
       try {
         const base    = workerUrl.replace(/\/+$/,'');
         const hmacHdrs = await _signRequest('GET', token, '').catch(() => ({}));
-        const res = await fetch(`${base}/kv/${encodeURIComponent(token)}`, {
+        const res = await fetch(`${base}/storage/${encodeURIComponent(token)}/profile`, {
           headers: hmacHdrs,
         });
         if(res.ok) remote = await res.json();
@@ -1201,10 +1204,12 @@ const Auth = (() => {
 
         let ok = false;
         try {
-          const res = await fetch(`${base}/kv/${encodeURIComponent(newToken)}`, {
+          const body    = JSON.stringify(payload);
+          const authHdrs = await _authHeaders('PUT', newToken, body).catch(() => ({}));
+          const res = await fetch(`${base}/storage/${encodeURIComponent(newToken)}/profile`, {
             method:  'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify(payload),
+            headers: { 'Content-Type': 'application/json', ...authHdrs },
+            body,
           });
           ok = res.ok;
         } catch { ok = false; }
