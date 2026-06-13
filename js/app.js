@@ -287,7 +287,15 @@ async function updatePlateIndex(incident, remove = false) {
 // ── Profile KV sync ───────────────────────────────────────────────
 
 async function saveProfileToKV() {
-  if (!state.workerUrl || !state.token || Auth.isGuest()) return;
+  if (!state.workerUrl || Auth.isGuest()) return;
+
+  // Token accounts need a token — generate one now if this is first-time account creation
+  if (!state.token && state.authMethod === 'token') {
+    state.token = Auth.generateToken();
+    saveSettings();
+  }
+
+  if (!state.token) return;
   try {
     const profile = {
       username:     state.username,
