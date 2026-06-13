@@ -169,6 +169,13 @@ function loadSettings() {
     state.authMethod = 'token';
     localStorage.setItem(STORAGE_PREFIX + 'auth_method', 'token');
   }
+
+  // Stale state guard: if authMethod is 'token' or 'google' but there's no
+  // actual token, the value is leftover from a previous session. Reset to guest.
+  if (state.authMethod && state.authMethod !== 'guest' && !state.token && !state.linkedGoogle) {
+    state.authMethod = null;
+    localStorage.removeItem(STORAGE_PREFIX + 'auth_method');
+  }
 }
 
 function saveSettings() {
