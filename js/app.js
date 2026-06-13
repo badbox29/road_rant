@@ -578,16 +578,25 @@ async function renderPlateOnCanvas(canvas, stateKey, plateNum) {
 
   function totalSpacedWidth(size) {
     ctx.font = `${fontWt} ${size}px ${primaryFont}, Arial Narrow, Arial, sans-serif`;
-    // For split modes, measure the longest single group
     const splitMode = pt.splitMode || null;
+    const safeLeft  = pt.safeArea?.x || 120;
+    const safeRight = safeLeft + (pt.safeArea?.width || 1092);
+
     if (splitMode === 'pin-edges') {
-      const parts = plateNum.split(' ');
-      return Math.max(...parts.map(p => spacedTextWidth(ctx, p, spacing)));
+      // Both groups must fit simultaneously without crossing center.
+      // Left group starts at safeLeft, right group ends at safeRight.
+      // They must not overlap: leftGroupWidth + rightGroupWidth <= safeRight - safeLeft - minGap
+      const parts    = plateNum.split(' ');
+      const minGap   = pt.splitMinGap || 120; // per-state override or default
+      const leftW    = spacedTextWidth(ctx, parts[0] || '', spacing);
+      const rightW   = spacedTextWidth(ctx, parts[1] || '', spacing);
+      return leftW + rightW + minGap; // must fit within safeW total
     } else if (splitMode === 'wyoming') {
       const stripped = plateNum.replace(/\s+/g, '');
-      const left  = stripped.slice(0, 1);
-      const right = stripped.slice(1);
-      return Math.max(spacedTextWidth(ctx, left, spacing), spacedTextWidth(ctx, right, spacing));
+      const left     = stripped.slice(0, 1);
+      const right    = stripped.slice(1);
+      const minGap   = 200; // bronco figure gap
+      return spacedTextWidth(ctx, left, spacing) + spacedTextWidth(ctx, right, spacing) + minGap;
     }
     return spacedTextWidth(ctx, plateNum.replace(/\s+/g, ' '), spacing);
   }
