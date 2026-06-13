@@ -1027,29 +1027,30 @@ const Auth = (() => {
     const statusEl    = document.getElementById('auth-upgrade-status');
     const googleCtr   = document.getElementById('auth-upgrade-google-container');
 
-    async function unlockUpgrade() {
-      const url = workerInput.value.trim();
-      if(!url) { statusEl.style.color='var(--red,#c07070)'; statusEl.textContent='Enter a Worker URL first.'; return; }
-      statusEl.style.color = 'var(--gold2, #b8985a)';
-      statusEl.textContent = 'Testing connection…';
-      const ok = await testWorkerUrl(url);
-      if(ok) {
-        const d = getData(); d.workerUrl = url.replace(/\/+$/, ''); C.setData(d);
-        statusEl.style.color = 'var(--green, #6daa8f)';
-        statusEl.textContent = 'Connected ✓ — sign in with Google below to complete upgrade.';
-        googleCtr.style.opacity = '1';
-        googleCtr.style.pointerEvents = 'auto';
+    // Capture oldToken once at screen render — before any sign-in can overwrite it.
+    // handleGoogleCredential will replace getData().userToken with "google:<sub>".
+    const oldToken = getData().userToken;
 
-        // CRITICAL: capture oldToken NOW, immediately after worker confirmed,
-        // before signInWithGoogle runs — handleGoogleCredential will overwrite
-        // getData().userToken with "google:<sub>" during sign-in.
-        const oldToken = getData().userToken;
+    // Render the Google button into the locked container now so it's ready
+    // when the worker test passes. GIS button clicks ARE user gestures — the
+    // browser won't block the popup as long as the button is what the user clicked.
+    waitForGIS().then(() => {
+      google.accounts.id.initialize({
+        client_id:   C.googleClientId,
+        auto_select: false,
+        callback: async (response) => {
+          google.accounts.id.cancel();
+          // Don't proceed if worker isn't confirmed yet
+          if(googleCtr.style.pointerEvents === 'none') {
+            statusEl.style.color = 'var(--red, #c07070)';
+            statusEl.textContent = 'Test the Worker URL first.';
+            return;
+          }
 
-        // Only start the Google sign-in flow once worker is confirmed
-        signInWithGoogle(googleCtr).then(async result => {
+          const result = await handleGoogleCredential(response.credential);
           if(!result?.ok) {
             statusEl.style.color = 'var(--red, #c07070)';
-            statusEl.textContent = 'Sign-in cancelled — try again.';
+            statusEl.textContent = 'Sign-in failed — try again.';
             return;
           }
 
@@ -1080,7 +1081,27 @@ const Auth = (() => {
             statusEl.style.color = 'var(--red, #c07070)';
             statusEl.textContent = `Migration failed: ${err.message}`;
           }
-        });
+        },
+      });
+      google.accounts.id.renderButton(googleCtr, {
+        theme: 'filled_black', size: 'large',
+        width: googleCtr.offsetWidth || 280,
+        text: 'continue_with', locale: 'en', ux_mode: 'popup',
+      });
+    });
+
+    async function unlockUpgrade() {
+      const url = workerInput.value.trim();
+      if(!url) { statusEl.style.color='var(--red,#c07070)'; statusEl.textContent='Enter a Worker URL first.'; return; }
+      statusEl.style.color = 'var(--gold2, #b8985a)';
+      statusEl.textContent = 'Testing connection…';
+      const ok = await testWorkerUrl(url);
+      if(ok) {
+        const d = getData(); d.workerUrl = url.replace(/\/+$/, ''); C.setData(d);
+        statusEl.style.color = 'var(--green, #6daa8f)';
+        statusEl.textContent = 'Connected ✓ — sign in with Google below to complete upgrade.';
+        googleCtr.style.opacity = '1';
+        googleCtr.style.pointerEvents = 'auto';
       } else {
         statusEl.style.color = 'var(--red, #c07070)';
         statusEl.textContent = 'Could not reach that URL — check it and try again.';
@@ -1088,7 +1109,7 @@ const Auth = (() => {
     }
 
     document.getElementById('auth-btn-test-worker').addEventListener('click', unlockUpgrade);
-    // Pre-test if worker URL already set — triggers sign-in button automatically
+    // Pre-test worker URL if already set — unlocks button without requiring Test click
     if(d.workerUrl) unlockUpgrade();
   }
 
