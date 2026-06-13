@@ -441,19 +441,25 @@ export default {
     const url    = new URL(request.url);
     const method = request.method.toUpperCase();
 
-    // Health check — no auth
+    const allowedOrigins = (env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim()).filter(Boolean);
+    const origin = checkOrigin(request, allowedOrigins);
+
+    // OPTIONS preflight must be handled before origin enforcement so it's never blocked
+    if (method === 'OPTIONS') {
+      const corsOrigin = origin || allowedOrigins[0] || '*';
+      return new Response(null, { status: 204, headers: buildCorsHeaders(corsOrigin) });
+    }
+
+    // Health check — no auth, but include CORS so cross-origin fetch() sees res.ok = true
     if (method === 'GET' && (url.pathname === '/' || url.pathname === '/ping')) {
+      const corsHeaders = origin ? buildCorsHeaders(origin) : { 'Access-Control-Allow-Origin': '*' };
       return new Response(JSON.stringify({ ok: true, app: 'road-rant', ts: Date.now() }), {
-        status: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+        status: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...corsHeaders },
       });
     }
 
-    const allowedOrigins = (env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim()).filter(Boolean);
-    const origin = checkOrigin(request, allowedOrigins);
     if (!origin) return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { 'Content-Type': 'application/json' } });
     const cors = buildCorsHeaders(origin);
-
-    if (method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
 
     try {
       const authRes = await handleAuth(url, method, request, env, cors);
