@@ -128,14 +128,14 @@ async function checkKvAuth(request, token, cors, body, env) {
 // ── Google JWT ────────────────────────────────────────────────────
 
 async function verifyGoogleJWT(idToken, clientId) {
-  if (!GOOGLE_CLIENT_ID) return null;
+  if (!clientId) return null;
   try {
     const parts   = idToken.split('.');
     if (parts.length !== 3) return null;
     const header  = JSON.parse(atob(parts[0].replace(/-/g,'+').replace(/_/g,'/')));
     const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
     const now     = Math.floor(Date.now() / 1000);
-    if (payload.exp < now || payload.aud !== GOOGLE_CLIENT_ID || !payload.sub) return null;
+    if (payload.exp < now || payload.aud !== clientId || !payload.sub) return null;
     if (!['accounts.google.com','https://accounts.google.com'].includes(payload.iss)) return null;
 
     const jwksRes = await fetch('https://www.googleapis.com/oauth2/v3/certs');
