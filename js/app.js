@@ -1371,13 +1371,21 @@ document.getElementById('btn-save-settings')?.addEventListener('click', saveSett
 
 document.getElementById('btn-switch-account')?.addEventListener('click', () => {
   closeModal('modal-settings');
+  // For guests: destructive wipe-and-switch flow
+  // For real accounts: go to S1 welcome to load a different account
   if (Auth.isGuest()) Auth.showGuestSwitchConfirm();
   else Auth.showAccountSetup();
 });
 
 document.getElementById('btn-guest-create-account')?.addEventListener('click', () => {
   closeModal('modal-settings');
-  Auth.showSetupFresh();
+  // Go to S1 welcome screen — lets user choose token vs Google, or load existing
+  Auth.showAccountSetup();
+});
+
+document.getElementById('btn-switch-account-guest')?.addEventListener('click', () => {
+  closeModal('modal-settings');
+  Auth.showGuestSwitchConfirm();
 });
 
 document.getElementById('btn-upgrade-to-google')?.addEventListener('click', () => {
