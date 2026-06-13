@@ -363,6 +363,56 @@ const Auth = (() => {
     });
   }
 
+  // ── refreshGoogleSession() ──────────────────────────────────────
+  // Shows a minimal re-auth screen when the stored Google ID token expires.
+  // Does NOT wipe account data — just refreshes the credential.
+  // HOST APP INTERFACE: calls getData(), openModal(), closeModal()
+  function refreshGoogleSession() {
+    const d       = getData();
+    const profile = d.linkedGoogle;
+    const name    = profile?.name  || 'your account';
+    const email   = profile?.email || '';
+
+    setupScreen('Sign In Again', `
+      <p class="f13 lh muted" style="margin-bottom:1rem;">
+        Your session expired. Sign in with Google to continue.
+      </p>
+      ${email ? `<p class="f13 lh" style="margin-bottom:1rem;opacity:.8;">${_esc(email)}</p>` : ''}
+      <div id="auth-refresh-google-ctr"
+           style="width:100%;min-height:44px;margin-bottom:1rem;"></div>
+      <div id="auth-refresh-status"
+           style="min-height:1.2rem;font-size:.82rem;color:var(--red,#c07070);"></div>
+    `);
+    C.openModal('modal-account-setup');
+
+    waitForGIS().then(() => {
+      const ctr      = document.getElementById('auth-refresh-google-ctr');
+      const statusEl = document.getElementById('auth-refresh-status');
+      if(!ctr) return;
+
+      google.accounts.id.initialize({
+        client_id:   C.googleClientId,
+        auto_select: false,
+        hint:        email || undefined,
+        callback: async (response) => {
+          google.accounts.id.cancel();
+          const result = await handleGoogleCredential(response.credential);
+          if(result?.ok) {
+            C.closeModal('modal-account-setup');
+            C.toast('Signed back in ✓');
+          } else {
+            if(statusEl) statusEl.textContent = 'Sign-in failed — try again.';
+          }
+        },
+      });
+      google.accounts.id.renderButton(ctr, {
+        theme: 'filled_black', size: 'large',
+        width: ctr.offsetWidth || 280,
+        text: 'signin_with', locale: 'en', ux_mode: 'popup',
+      });
+    });
+  }
+
   // ── signOutGoogle() ──────────────────────────────────────────────
   // Revokes the Google session client-side and clears the stored token.
   // Does NOT delete account data — only clears the session credential.
@@ -1315,6 +1365,7 @@ const Auth = (() => {
 
     // Session management
     signInWithGoogle,       // render GIS button and sign in
+    refreshGoogleSession,   // re-auth screen for expired Google sessions
     signOutGoogle,          // revoke session locally
     verifyGoogleSession,    // call at boot for Google accounts
 

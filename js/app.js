@@ -1570,9 +1570,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderMobileFeed();
     },
     onSessionExpired: () => {
-      // Google ID token expired — show a toast and re-trigger sign-in flow
-      showToast('Session expired — please sign in with Google again.');
-      Auth.showAccountSetup();
+      // Google ID token expired — show lightweight re-auth screen, not the full wizard
+      Auth.refreshGoogleSession();
     },
     pushToWorker:  () => saveProfileToKV(),
     startSyncPing: () => {},
