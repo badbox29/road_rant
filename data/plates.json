@@ -877,7 +877,7 @@
     },
     "plateText": {
       "x": 693,
-      "y": 310,
+      "y": 380,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
@@ -1298,7 +1298,8 @@
       "fill": "#111111",
       "stroke": null,
       "notes": "Black script text on white/green misty mountain plate; Number zone widened to mimic real plates: registration text may overlap decorative graphics, but avoids top/bottom word bands.",
-      "splitMode": "pin-edges"
+      "splitMode": "pin-edges",
+      "splitMinGap": 280
     },
     "serialFormat": "ABC 1234 or 123 ABCD",
     "formatNotes": "Multiple formats",
@@ -1344,7 +1345,7 @@
     },
     "plateText": {
       "x": 666,
-      "y": 400,
+      "y": 440,
       "anchor": "middle",
       "baseline": "middle",
       "maxWidth": 1012,
