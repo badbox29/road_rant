@@ -290,7 +290,7 @@ async function updatePlateIndex(incident, remove = false) {
 // ── Profile KV sync ───────────────────────────────────────────────
 
 async function saveProfileToKV() {
-  if (!state.workerUrl || Auth.isGuest()) return;
+  if (!state.workerUrl || Auth.isGuest()) return false;
 
   // Token accounts need a token — generate one now if this is first-time account creation
   if (!state.token && state.authMethod === 'token') {
@@ -298,7 +298,7 @@ async function saveProfileToKV() {
     saveSettings();
   }
 
-  if (!state.token) return;
+  if (!state.token) return false;
   try {
     const profile = {
       userName:     state.userName,
@@ -313,7 +313,11 @@ async function saveProfileToKV() {
       outgoingReqs: state.outgoingReqs,
     };
     await kvPut('profile', profile);
-  } catch (e) { console.warn('[Profile KV] save failed:', e.message); }
+    return true;
+  } catch (e) {
+    console.warn('[Profile KV] save failed:', e.message);
+    return false;
+  }
 }
 
 async function loadProfileFromKV() {
