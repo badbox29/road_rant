@@ -424,36 +424,114 @@ async function ensureFontLoaded(fontFamily, fontWeight) {
   }
 }
 
-// Draw text with manual letter spacing (Canvas ignores CSS letter-spacing)
-function drawSpacedText(ctx, text, x, y, letterSpacing, maxWidth) {
-  if (!letterSpacing) { ctx.fillText(text, x, y, maxWidth); return; }
-
-  // Measure total width with spacing to center correctly
-  const chars   = text.split('');
-  const widths  = chars.map(c => ctx.measureText(c).width);
-  const totalW  = widths.reduce((a, b) => a + b, 0) + letterSpacing * (chars.length - 1);
-
-  let curX = x - totalW / 2;
-  ctx.textAlign = 'left';
-  chars.forEach((ch, i) => {
-    ctx.fillText(ch, curX, y);
-    curX += widths[i] + letterSpacing;
-  });
-  ctx.textAlign = 'center'; // restore
+// Measure total width of spaced text
+function spacedTextWidth(ctx, text, letterSpacing) {
+  const chars  = text.split('');
+  const widths = chars.map(c => ctx.measureText(c).width);
+  return widths.reduce((a, b) => a + b, 0) + letterSpacing * (chars.length - 1);
 }
 
-function drawSpacedStroke(ctx, text, x, y, letterSpacing) {
-  if (!letterSpacing) { ctx.strokeText(text, x, y); return; }
+// Draw text with manual letter spacing, centered on x
+function drawSpacedText(ctx, text, x, y, letterSpacing) {
   const chars  = text.split('');
   const widths = chars.map(c => ctx.measureText(c).width);
   const totalW = widths.reduce((a, b) => a + b, 0) + letterSpacing * (chars.length - 1);
   let curX = x - totalW / 2;
   ctx.textAlign = 'left';
-  chars.forEach((ch, i) => {
-    ctx.strokeText(ch, curX, y);
-    curX += widths[i] + letterSpacing;
-  });
+  chars.forEach((ch, i) => { ctx.fillText(ch, curX, y); curX += widths[i] + letterSpacing; });
   ctx.textAlign = 'center';
+}
+
+function drawSpacedStroke(ctx, text, x, y, letterSpacing) {
+  const chars  = text.split('');
+  const widths = chars.map(c => ctx.measureText(c).width);
+  const totalW = widths.reduce((a, b) => a + b, 0) + letterSpacing * (chars.length - 1);
+  let curX = x - totalW / 2;
+  ctx.textAlign = 'left';
+  chars.forEach((ch, i) => { ctx.strokeText(ch, curX, y); curX += widths[i] + letterSpacing; });
+  ctx.textAlign = 'center';
+}
+
+// Draw text left-aligned from startX
+function drawSpacedTextLeft(ctx, text, startX, y, letterSpacing) {
+  const chars  = text.split('');
+  const widths = chars.map(c => ctx.measureText(c).width);
+  let curX = startX;
+  ctx.textAlign = 'left';
+  chars.forEach((ch, i) => { ctx.fillText(ch, curX, y); curX += widths[i] + letterSpacing; });
+  ctx.textAlign = 'center';
+}
+
+// Draw text right-aligned ending at endX
+function drawSpacedTextRight(ctx, text, endX, y, letterSpacing) {
+  const chars  = text.split('');
+  const widths = chars.map(c => ctx.measureText(c).width);
+  const totalW = widths.reduce((a, b) => a + b, 0) + letterSpacing * (chars.length - 1);
+  let curX = endX - totalW;
+  ctx.textAlign = 'left';
+  chars.forEach((ch, i) => { ctx.fillText(ch, curX, y); curX += widths[i] + letterSpacing; });
+  ctx.textAlign = 'center';
+}
+
+// Master text renderer — respects splitMode from plates.json
+function renderPlateText(ctx, plateNum, pt, y, fontSize, spacing, doStroke) {
+  const safeLeft  = pt.safeArea?.x || 120;
+  const safeRight = safeLeft + (pt.safeArea?.width || 1092);
+  const x         = pt.x || 666;
+  const splitMode = pt.splitMode || null;
+
+  if (doStroke) {
+    ctx.strokeStyle = pt.stroke;
+    ctx.lineWidth   = Math.max(4, Math.round(fontSize * 0.07));
+    ctx.lineJoin    = 'round';
+  }
+
+  if (splitMode === 'pin-edges') {
+    // Split at first space: left group pins to left edge, right group pins to right edge
+    const spaceIdx = plateNum.indexOf(' ');
+    if (spaceIdx === -1) {
+      // No space — fall through to centered
+      if (doStroke) drawSpacedStroke(ctx, plateNum, x, y, spacing);
+      else drawSpacedText(ctx, plateNum, x, y, spacing);
+      return;
+    }
+    const left  = plateNum.slice(0, spaceIdx);
+    const right = plateNum.slice(spaceIdx + 1);
+    if (doStroke) {
+      ctx.strokeStyle = pt.stroke;
+      drawSpacedTextLeft(ctx, left, safeLeft, y, spacing);
+      drawSpacedTextRight(ctx, right, safeRight, y, spacing);
+    } else {
+      drawSpacedTextLeft(ctx, left, safeLeft, y, spacing);
+      drawSpacedTextRight(ctx, right, safeRight, y, spacing);
+    }
+
+  } else if (splitMode === 'right-align') {
+    // Single block, right-aligned within safe zone
+    if (doStroke) drawSpacedStroke(ctx, plateNum, x, y, spacing);
+    else drawSpacedTextRight(ctx, plateNum.replace(/\s+/g,''), safeRight, y, spacing);
+
+  } else if (splitMode === 'wyoming') {
+    // 1 char | bronco gap (left of center) | remaining chars
+    // Split: first char left-pinned, rest right-pinned
+    // Gap is the bronco figure sitting slightly left of center (~560-700px on 1332 canvas)
+    const firstChar = plateNum.replace(/\s+/g,'').slice(0, 1);
+    const restChars = plateNum.replace(/\s+/g,'').slice(1);
+    const broncLeft  = 520;  // left edge of bronco figure
+    const broncRight = 720;  // right edge of bronco figure
+    if (doStroke) {
+      drawSpacedTextLeft(ctx, firstChar, safeLeft, y, spacing);
+      drawSpacedTextRight(ctx, restChars, safeRight, y, spacing);
+    } else {
+      drawSpacedTextLeft(ctx, firstChar, safeLeft, y, spacing);
+      drawSpacedTextRight(ctx, restChars, safeRight, y, spacing);
+    }
+
+  } else {
+    // Default: centered
+    if (doStroke) drawSpacedStroke(ctx, plateNum, x, y, spacing);
+    else drawSpacedText(ctx, plateNum, x, y, spacing);
+  }
 }
 
 // Core render: draws plate background + number onto a canvas.
@@ -500,9 +578,18 @@ async function renderPlateOnCanvas(canvas, stateKey, plateNum) {
 
   function totalSpacedWidth(size) {
     ctx.font = `${fontWt} ${size}px ${primaryFont}, Arial Narrow, Arial, sans-serif`;
-    const chars  = plateNum.split('');
-    const widths = chars.map(c => ctx.measureText(c).width);
-    return widths.reduce((a, b) => a + b, 0) + spacing * (chars.length - 1);
+    // For split modes, measure the longest single group
+    const splitMode = pt.splitMode || null;
+    if (splitMode === 'pin-edges') {
+      const parts = plateNum.split(' ');
+      return Math.max(...parts.map(p => spacedTextWidth(ctx, p, spacing)));
+    } else if (splitMode === 'wyoming') {
+      const stripped = plateNum.replace(/\s+/g, '');
+      const left  = stripped.slice(0, 1);
+      const right = stripped.slice(1);
+      return Math.max(spacedTextWidth(ctx, left, spacing), spacedTextWidth(ctx, right, spacing));
+    }
+    return spacedTextWidth(ctx, plateNum.replace(/\s+/g, ' '), spacing);
   }
 
   let lo = 40, hi = safeH;
@@ -513,16 +600,15 @@ async function renderPlateOnCanvas(canvas, stateKey, plateNum) {
   const fontSize = lo;
   ctx.font = `${fontWt} ${fontSize}px ${primaryFont}, Arial Narrow, Arial, sans-serif`;
 
+  ctx.fillStyle = pt.fill || '#111111';
+
   // Stroke pass for busy backgrounds (Wyoming etc.)
   if (pt.stroke) {
-    ctx.strokeStyle = pt.stroke;
-    ctx.lineWidth   = Math.max(4, Math.round(fontSize * 0.07));
-    ctx.lineJoin    = 'round';
-    drawSpacedStroke(ctx, plateNum, x, y, spacing);
+    renderPlateText(ctx, plateNum, pt, y, fontSize, spacing, true);
   }
 
-  ctx.fillStyle = pt.fill || '#111111';
-  drawSpacedText(ctx, plateNum, x, y, spacing, safeW);
+  // Fill pass
+  renderPlateText(ctx, plateNum, pt, y, fontSize, spacing, false);
 }
 
 // Render into the modal preview canvas
