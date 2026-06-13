@@ -26,6 +26,7 @@
  *   DELETE /plates/:state/:plate/:id  Remove incident from plate index
  */
 
+const GOOGLE_CLIENT_ID = ''; // Set your Google OAuth Client ID here
 
 const KV_BINDING        = 'ROAD_RANT_KV';
 const KV_TTL            = 60 * 60 * 24 * 1825; // 5 years
@@ -109,12 +110,12 @@ async function verifyHmac(request, token, body) {
   } catch { return { ok: false, reason: 'Verification error' }; }
 }
 
-async function checkKvAuth(request, token, cors, body) {
+async function checkKvAuth(request, token, cors, body, env) {
   if (token.startsWith('google:')) {
     const auth    = request.headers.get('Authorization') || '';
     const idToken = auth.startsWith('Bearer ') ? auth.slice(7) : '';
     if (!idToken) return { ok: false, response: respond(JSON.stringify({ error: 'Authorization required' }), 401, cors) };
-    const payload = await verifyGoogleJWT(idToken, env.GOOGLE_CLIENT_ID);
+    const payload = await verifyGoogleJWT(idToken, env?.GOOGLE_CLIENT_ID);
     if (!payload) return { ok: false, response: respond(JSON.stringify({ error: 'Invalid Google token' }), 401, cors) };
     if (token !== `google:${payload.sub}`) return { ok: false, response: respond(JSON.stringify({ error: 'Token mismatch' }), 403, cors) };
     return { ok: true };
@@ -127,14 +128,14 @@ async function checkKvAuth(request, token, cors, body) {
 // ── Google JWT ────────────────────────────────────────────────────
 
 async function verifyGoogleJWT(idToken, clientId) {
-  if (!clientId) return null;
+  if (!GOOGLE_CLIENT_ID) return null;
   try {
     const parts   = idToken.split('.');
     if (parts.length !== 3) return null;
     const header  = JSON.parse(atob(parts[0].replace(/-/g,'+').replace(/_/g,'/')));
     const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
     const now     = Math.floor(Date.now() / 1000);
-    if (payload.exp < now || payload.aud !== clientId || !payload.sub) return null;
+    if (payload.exp < now || payload.aud !== GOOGLE_CLIENT_ID || !payload.sub) return null;
     if (!['accounts.google.com','https://accounts.google.com'].includes(payload.iss)) return null;
 
     const jwksRes = await fetch('https://www.googleapis.com/oauth2/v3/certs');
@@ -197,7 +198,7 @@ async function handleStorage(request, env, pathname, cors) {
   const parts = pathname.split('/').filter(Boolean);
   if (parts.length < 2) return respond(JSON.stringify({ error: 'Token required' }), 400, cors);
 
-  const token = parts[1];
+  const token = decodeURIComponent(parts[1]);
   if (!isValidToken(token)) return respond(JSON.stringify({ error: 'Invalid token' }), 400, cors);
 
   const rlErr = await rateLimit(token, env, cors);
@@ -219,7 +220,7 @@ async function handleStorage(request, env, pathname, cors) {
   const kvKey = `user:${token}:${userKey}`;
 
   if (request.method === 'GET') {
-    const auth = await checkKvAuth(request, token, cors, null);
+    const auth = await checkKvAuth(request, token, cors, null, env);
     if (!auth.ok) return auth.response;
     // Migration tombstone
     const tomb = await kv.get(`migrated:${token}`, { type: 'text' });
@@ -239,7 +240,7 @@ async function handleStorage(request, env, pathname, cors) {
     const bodyText = await readBodyText(request);
     if (!bodyText) return respond(JSON.stringify({ error: 'Invalid or oversized body' }), 400, cors);
     let parsed; try { parsed = JSON.parse(bodyText); } catch { return respond(JSON.stringify({ error: 'Invalid JSON' }), 400, cors); }
-    const auth = await checkKvAuth(request, token, cors, bodyText);
+    const auth = await checkKvAuth(request, token, cors, bodyText, env);
     if (!auth.ok) return auth.response;
     // Legacy pointer
     if (parsed._legacyToken && isValidToken(parsed._legacyToken) && parsed._legacyToken !== token) {
@@ -251,7 +252,7 @@ async function handleStorage(request, env, pathname, cors) {
   }
 
   if (request.method === 'DELETE') {
-    const auth = await checkKvAuth(request, token, cors, null);
+    const auth = await checkKvAuth(request, token, cors, null, env);
     if (!auth.ok) return auth.response;
     await kv.delete(kvKey);
     return respond(JSON.stringify({ ok: true }), 200, cors);
