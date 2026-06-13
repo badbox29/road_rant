@@ -1383,6 +1383,44 @@ document.getElementById('btn-incident-locate')?.addEventListener('click', () => 
 
 document.getElementById('btn-save-settings')?.addEventListener('click', saveSettings_modal);
 
+document.getElementById('btn-save-username')?.addEventListener('click', async () => {
+  const userEl   = document.getElementById('settings-username');
+  const username = userEl?.value.trim() || '';
+  const hint     = userEl?.parentElement?.querySelector('.form-hint');
+
+  // Validate format client-side first (mirrors worker validation)
+  if (!username) {
+    if (hint) { hint.style.color = 'var(--red, #c07070)'; hint.textContent = 'Enter a username first.'; }
+    return;
+  }
+  if (!/^[a-zA-Z0-9_-]{3,32}$/.test(username)) {
+    if (hint) { hint.style.color = 'var(--red, #c07070)'; hint.textContent = 'Letters, numbers, - and _ only. 3–32 characters.'; }
+    return;
+  }
+
+  // Save locally regardless (so it persists even without a worker)
+  state.username = username;
+  saveSettings();
+
+  // If guest or no worker, local save is all we can do
+  if (Auth.isGuest() || !state.workerUrl || !state.token) {
+    if (hint) { hint.style.color = 'var(--green, #6daa8f)'; hint.textContent = 'Saved locally.'; }
+    setTimeout(() => { if (hint) { hint.style.color = ''; hint.textContent = 'Letters, numbers, - and _ only. 3–32 characters.'; } }, 2500);
+    return;
+  }
+
+  // Register with worker so other users can look you up
+  if (hint) { hint.style.color = 'var(--gold2, #b8985a)'; hint.textContent = 'Saving…'; }
+  try {
+    await workerFetch(`/username/${encodeURIComponent(username)}`, 'PUT', { token: state.token });
+    if (hint) { hint.style.color = 'var(--green, #6daa8f)'; hint.textContent = 'Username saved ✓'; }
+  } catch (err) {
+    const msg = err.message?.includes('taken') ? 'That username is already taken.' : `Could not save: ${err.message}`;
+    if (hint) { hint.style.color = 'var(--red, #c07070)'; hint.textContent = msg; }
+  }
+  setTimeout(() => { if (hint) { hint.style.color = ''; hint.textContent = 'Letters, numbers, - and _ only. 3–32 characters.'; } }, 3000);
+});
+
 document.getElementById('btn-switch-account')?.addEventListener('click', () => {
   closeModal('modal-settings');
   if (Auth.isGuest()) Auth.showGuestSwitchConfirm();
