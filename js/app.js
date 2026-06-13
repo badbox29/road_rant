@@ -1580,13 +1580,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadPlatesConfig();
 
   // First run?
-  const isFirstRun = !state.token && !state.authMethod;
-  if (isFirstRun) {
+  // A user is NOT on first run if they have authMethod set, a token, or existing incidents.
+  // This prevents the wizard re-appearing after a session where authMethod wasn't persisted.
+  const hasExistingSession = state.token || state.authMethod || state.incidents.length > 0;
+  if (!hasExistingSession) {
     initMainMap();
     renderMapPins();
     renderMobileFeed();
     Auth.showAccountSetup();
     return;
+  }
+
+  // Ensure authMethod is set for legacy guest sessions that predate this fix
+  if (!state.authMethod && !state.token) {
+    state.authMethod = 'guest';
+    saveSettings();
   }
 
   // Existing session
