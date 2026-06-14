@@ -967,6 +967,17 @@ function openDrawer(incidentId) {
   if (editBtn)   editBtn.style.display   = isOwner ? '' : 'none';
   if (deleteBtn) deleteBtn.style.display = isOwner ? '' : 'none';
 
+  // Highlight active pin — remove from any previous, apply to current
+  Object.entries(state.markers).forEach(([id, marker]) => {
+    const el = marker.getElement()?.querySelector('.rr-pin');
+    if (el) el.classList.remove('active-pin');
+  });
+  const activeMarker = state.markers[incidentId];
+  if (activeMarker) {
+    const el = activeMarker.getElement()?.querySelector('.rr-pin');
+    if (el) el.classList.add('active-pin');
+  }
+
   // Show feed nav if opened from incident log
   const feedNav = document.getElementById('drawer-feed-nav');
   if (feedNav) {
@@ -999,6 +1010,11 @@ function openDrawer(incidentId) {
 function closeDrawer() {
   document.getElementById('incident-drawer').classList.remove('open');
   document.getElementById('map-wrapper').classList.remove('drawer-open');
+  // Remove active pin highlight
+  Object.entries(state.markers).forEach(([id, marker]) => {
+    const el = marker.getElement()?.querySelector('.rr-pin');
+    if (el) el.classList.remove('active-pin');
+  });
   state.activeIncidentId = null;
   state.drawerSource = null;
   state._feedNavList = null;
