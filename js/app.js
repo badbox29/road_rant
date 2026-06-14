@@ -1524,7 +1524,7 @@ async function sendFriendRequest(targetUsername, targetToken) {
   try {
     const base = state.workerUrl.replace(/\/$/, '');
     const body = JSON.stringify({
-      entryId:      `freq_${state.token}_${Date.now()}`,
+      entryId:      `freq_${state.token.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`,
       fromUsername: state.username,
       fromToken:    state.token,
       preview:      `${state.username || 'Someone'} wants to be your friend on Road Rant.`,
@@ -1554,7 +1554,7 @@ async function acceptFriendRequest(fromUsername, fromToken) {
   try {
     const base = state.workerUrl.replace(/\/$/, '');
     const body = JSON.stringify({
-      entryId:      `faccept_${state.token}_${Date.now()}`,
+      entryId:      `faccept_${state.token.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`,
       fromUsername: state.username,
       fromToken:    state.token,
       preview:      `${state.username || 'Someone'} accepted your friend request.`,
