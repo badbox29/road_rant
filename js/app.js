@@ -67,6 +67,7 @@ const state = {
   currentPage:  1,
   filterType:   'all',
   visFilter:    'all',   // map visibility filter: all | mine | friends | public
+  drawerSource: null,    // 'feed' | null — tracks how drawer was opened for nav
   homeLocation: null,    // { lat, lng, label }
   searchQuery:  '',
 
@@ -966,6 +967,25 @@ function openDrawer(incidentId) {
   if (editBtn)   editBtn.style.display   = isOwner ? '' : 'none';
   if (deleteBtn) deleteBtn.style.display = isOwner ? '' : 'none';
 
+  // Show feed nav if opened from incident log
+  const feedNav = document.getElementById('drawer-feed-nav');
+  if (feedNav) {
+    feedNav.style.display = state.drawerSource === 'feed' ? '' : 'none';
+    if (state.drawerSource === 'feed') {
+      // Determine prev/next within current filtered feed
+      const seen = new Set();
+      const feedList = [...state.incidents, ...(state.externalIncidents || [])]
+        .filter(i => { if (seen.has(i.id)) return false; seen.add(i.id); return true; })
+        .sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+      const idx = feedList.findIndex(i => i.id === incidentId);
+      document.getElementById('btn-drawer-prev').disabled = idx <= 0;
+      document.getElementById('btn-drawer-next').disabled = idx >= feedList.length - 1;
+      // Store list on state for nav buttons
+      state._feedNavList = feedList;
+      state._feedNavIdx  = idx;
+    }
+  }
+
   const drawer = document.getElementById('incident-drawer');
   drawer.classList.add('open');
   document.getElementById('map-wrapper').classList.add('drawer-open');
@@ -980,6 +1000,11 @@ function closeDrawer() {
   document.getElementById('incident-drawer').classList.remove('open');
   document.getElementById('map-wrapper').classList.remove('drawer-open');
   state.activeIncidentId = null;
+  state.drawerSource = null;
+  state._feedNavList = null;
+  state._feedNavIdx  = null;
+  const feedNav = document.getElementById('drawer-feed-nav');
+  if (feedNav) feedNav.style.display = 'none';
   // Only exit chalk mode if we're actually in it
   if (state.chalkMode) exitChalkMode();
 }
@@ -1149,11 +1174,11 @@ function renderFeed() {
 
   if (filtered.length === 0) {
     container.innerHTML = '';
-    empty.style.display = '';
+    if (empty) empty.style.display = '';
     renderPagination(0);
     return;
   }
-  empty.style.display = 'none';
+  if (empty) empty.style.display = 'none';
 
   container.innerHTML = page.map(inc => {
     const sev = getSeverity(inc.incidentType);
@@ -1173,6 +1198,7 @@ function renderFeed() {
 
   container.querySelectorAll('.incident-card').forEach(card => {
     card.addEventListener('click', () => {
+      state.drawerSource = 'feed';
       closeModal('modal-my-incidents');
       openDrawer(card.dataset.id);
     });
@@ -2048,6 +2074,29 @@ document.getElementById('btn-map-locate')?.addEventListener('click', () => {
 
 document.getElementById('btn-map-fit')?.addEventListener('click', fitMapToIncidents);
 document.getElementById('btn-chalk-exit')?.addEventListener('click', exitChalkMode);
+
+document.getElementById('btn-drawer-prev')?.addEventListener('click', () => {
+  const list = state._feedNavList;
+  const idx  = state._feedNavIdx;
+  if (!list || idx <= 0) return;
+  state.drawerSource = 'feed';
+  openDrawer(list[idx - 1].id);
+});
+
+document.getElementById('btn-drawer-next')?.addEventListener('click', () => {
+  const list = state._feedNavList;
+  const idx  = state._feedNavIdx;
+  if (!list || idx >= list.length - 1) return;
+  state.drawerSource = 'feed';
+  openDrawer(list[idx + 1].id);
+});
+
+document.getElementById('btn-drawer-back-to-log')?.addEventListener('click', () => {
+  closeDrawer();
+  state.currentPage = 1;
+  renderFeed();
+  openModal('modal-my-incidents');
+});
 
 // ── Header buttons ────────────────────────────────────────────────
 
