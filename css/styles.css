@@ -717,6 +717,7 @@ select.input { cursor: pointer; appearance: none;
 .friends-notif-text { font-size: .8rem; color: var(--text3); margin-top: .2rem; font-style: italic; }
 .friends-notif-time { font-size: .72rem; color: var(--text3); margin-top: .2rem; }
 .friends-requests-section { margin-bottom: 1rem; }
+.brand-version { font-size: .65rem; color: var(--text3); opacity: .6; margin-left: .3rem; align-self: flex-end; padding-bottom: .1rem; letter-spacing: .02em; }
 .drawer-feed-nav { display:flex; align-items:center; justify-content:space-between; padding:.4rem .75rem; border-bottom:1px solid var(--border); background:var(--surface2); gap:.25rem; }
 .drawer-feed-nav .btn { flex:1; justify-content:center; font-size:.78rem; }
 
