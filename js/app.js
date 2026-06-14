@@ -1605,15 +1605,31 @@ function renderNotificationsList() {
     if (n.entryId?.startsWith('faccept_')) verb = 'accepted your friend request';
     if (n.entryId?.startsWith('ftag_'))    verb = 'tagged you in an incident';
     return `
-    <div class="friends-row friends-notif-row">
-      <div>
+    <div class="friends-row friends-notif-row" data-kvkey="${_esc(n._kvKey || '')}">
+      <div style="flex:1;">
         <span class="friends-username">@${_esc(n.fromUsername)}</span>
         <span class="friends-notif-preview"> ${verb}</span>
         ${n.preview ? `<div class="friends-notif-text">${_esc(n.preview)}</div>` : ''}
         <div class="friends-notif-time">${new Date(n.createdAt).toLocaleString()}</div>
       </div>
+      <button class="btn btn-ghost btn-sm notif-dismiss" data-kvkey="${_esc(n._kvKey || '')}" style="flex-shrink:0;margin-left:.5rem;">✕</button>
     </div>`;
   }).join('');
+
+  // Wire dismiss buttons
+  el.querySelectorAll('.notif-dismiss').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const key = btn.dataset.kvkey;
+      if (key) {
+        // Delete from KV
+        workerFetch(`/storage/${encodeURIComponent(state.token)}/${key}`, 'DELETE').catch(() => {});
+      }
+      // Remove from local state
+      state.notifications = state.notifications.filter(n => n._kvKey !== key);
+      renderNotificationsList();
+      updateFriendsBadge();
+    });
+  });
   if (badge) { badge.textContent = notifs.length; badge.style.display = notifs.length > 0 ? '' : 'none'; }
 }
 
@@ -1708,6 +1724,8 @@ async function cancelFriendRequest(targetUsername) {
 async function removeFriend(username) {
   state.friends = state.friends.filter(f => f.username !== username);
   await saveProfileToKV();
+  // Re-push incidents so worker removes ex-friend from feed index
+  if (!Auth.isGuest() && state.workerUrl) pushIncidentsToWorker().catch(() => {});
 }
 
 // ── Notification pull ─────────────────────────────────────────────
@@ -1724,11 +1742,13 @@ async function pullNotificationsFromWorker() {
       .map(k => k.key);
 
     const notifs = [];
+    const processedKeys = []; // keys to delete after user dismisses
     for (const key of notifKeys) {
       try {
         // workerFetch returns { value: {...} } for storage GETs
         const d   = await workerFetch(`/storage/${encodeURIComponent(state.token)}/${key}`, 'GET');
         const val = d?.value ?? d;
+        val._kvKey = key; // stash so we can delete it on dismiss
         notifs.push(val);
         // Detect incoming friend requests
         if (val.entryId?.startsWith('freq_') && val.fromUsername && val.fromToken) {
@@ -1738,21 +1758,24 @@ async function pullNotificationsFromWorker() {
             state.incomingReqs.push({ username: val.fromUsername, token: val.fromToken });
           }
         }
-        // ftag_ notifications are alerts only — no state change needed, just display
-
-        // Detect accepted friend requests — move from outgoing to friends
+        // Detect accepted friend requests — add as friend unconditionally
         if (val.entryId?.startsWith('faccept_') && val.fromUsername && val.fromToken) {
-          const wasPending = state.outgoingReqs.find(r => r.username === val.fromUsername);
-          if (wasPending) {
-            state.outgoingReqs = state.outgoingReqs.filter(r => r.username !== val.fromUsername);
-            if (!state.friends.find(f => f.username === val.fromUsername)) {
-              state.friends.push({ username: val.fromUsername, token: val.fromToken });
-            }
+          state.outgoingReqs = state.outgoingReqs.filter(r => r.username !== val.fromUsername);
+          if (!state.friends.find(f => f.username === val.fromUsername)) {
+            state.friends.push({ username: val.fromUsername, token: val.fromToken });
           }
+          // Auto-dismiss accepted requests — no need to show in alerts
+          processedKeys.push(key);
         }
       } catch { /* skip bad keys */ }
     }
-    state.notifications = notifs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    // Delete auto-processed notifications (accepted requests) from KV
+    for (const key of processedKeys) {
+      workerFetch(`/storage/${encodeURIComponent(state.token)}/${key}`, 'DELETE').catch(() => {});
+    }
+    state.notifications = notifs
+      .filter(n => !n.entryId?.startsWith('faccept_')) // accepted requests handled silently
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     await saveProfileToKV();
   } catch { /* silent */ }
 }
