@@ -947,7 +947,8 @@ function closeDrawer() {
   document.getElementById('incident-drawer').classList.remove('open');
   document.getElementById('map-wrapper').classList.remove('drawer-open');
   state.activeIncidentId = null;
-  if (!state.chalkMode) exitChalkMode();
+  // Only exit chalk mode if we're actually in it
+  if (state.chalkMode) exitChalkMode();
 }
 
 // ── Chalk-line mode ───────────────────────────────────────────────
@@ -1034,17 +1035,19 @@ function exitChalkMode() {
   state.chalkMode  = false;
   state.chalkPlate = null;
 
-  // Remove individually-added markers
+  // Remove individually-added markers from map
   Object.values(state.markers).forEach(m => {
     if (state.mainMap.hasLayer(m)) state.mainMap.removeLayer(m);
   });
 
-  // Restore cluster layer with default pin colors
+  // Restore correct icons and re-add all markers back to the cluster
+  state.markerCluster.clearLayers();
   Object.entries(state.markers).forEach(([id, marker]) => {
     const inc = state.incidents.find(i => i.id === id)
              || (state.externalIncidents || []).find(i => i.id === id);
     if (!inc) return;
     marker.setIcon(makePinIcon(getSeverity(inc.incidentType)));
+    state.markerCluster.addLayer(marker);
   });
   if (!state.mainMap.hasLayer(state.markerCluster)) {
     state.mainMap.addLayer(state.markerCluster);
