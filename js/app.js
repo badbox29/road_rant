@@ -1506,10 +1506,7 @@ async function lookupUsername(username) {
   const clean = username.replace(/^@/, '').trim().toLowerCase();
   if (!clean) return null;
   try {
-    const authHeaders = await Auth._authHeaders('GET', state.token, null).catch(() => ({}));
-    const res = await workerFetch(`/username/${encodeURIComponent(clean)}`, 'GET');
-    if (!res.ok) return null;
-    const data = await res.json();
+    const data = await workerFetch(`/username/${encodeURIComponent(clean)}`, 'GET');
     return data; // { token, username }
   } catch { return null; }
 }
@@ -1593,9 +1590,8 @@ async function removeFriend(username) {
 async function pullNotificationsFromWorker() {
   if (Auth.isGuest() || !state.token || !state.workerUrl) return;
   try {
-    const res  = await workerFetch(`/storage/${encodeURIComponent(state.token)}`, 'GET');
-    if (!res.ok) return;
-    const data = await res.json();
+    // List all keys for this user — workerFetch returns parsed JSON directly
+    const data = await workerFetch(`/storage/${encodeURIComponent(state.token)}`, 'GET');
     const notifKeys = (data.keys || [])
       .filter(k => k.key.startsWith('notification/'))
       .map(k => k.key);
@@ -1603,18 +1599,16 @@ async function pullNotificationsFromWorker() {
     const notifs = [];
     for (const key of notifKeys) {
       try {
-        const r = await workerFetch(`/storage/${encodeURIComponent(state.token)}/${key}`, 'GET');
-        if (r.ok) {
-          const d = await r.json();
-          const val = d?.value ?? d;
-          notifs.push(val);
-          // Also check if this is an incoming friend request
-          if (val.entryId?.startsWith('freq_') && val.fromUsername && val.fromToken) {
-            const exists = state.incomingReqs.find(r => r.username === val.fromUsername)
-                        || state.friends.find(f => f.username === val.fromUsername);
-            if (!exists) {
-              state.incomingReqs.push({ username: val.fromUsername, token: val.fromToken });
-            }
+        // workerFetch returns { value: {...} } for storage GETs
+        const d   = await workerFetch(`/storage/${encodeURIComponent(state.token)}/${key}`, 'GET');
+        const val = d?.value ?? d;
+        notifs.push(val);
+        // Detect incoming friend requests
+        if (val.entryId?.startsWith('freq_') && val.fromUsername && val.fromToken) {
+          const exists = state.incomingReqs.find(r => r.username === val.fromUsername)
+                      || state.friends.find(f => f.username === val.fromUsername);
+          if (!exists) {
+            state.incomingReqs.push({ username: val.fromUsername, token: val.fromToken });
           }
         }
       } catch { /* skip bad keys */ }
@@ -1694,13 +1688,8 @@ document.getElementById('btn-friend-search')?.addEventListener('click', async ()
 
   try {
     const clean = query.replace(/^@/, '').toLowerCase();
-    const res   = await workerFetch(`/username/${encodeURIComponent(clean)}`, 'GET');
-    if (!res.ok) {
-      resultsEl.innerHTML = '<div class="widget-empty">No user found.</div>';
-      return;
-    }
-    const data = await res.json();
-    const found = data; // { token, username }
+    const found = await workerFetch(`/username/${encodeURIComponent(clean)}`, 'GET');
+    // { token, username }
 
     if (found.username === state.username) {
       resultsEl.innerHTML = '<div class="widget-empty">That\'s you!</div>';
