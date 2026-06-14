@@ -243,7 +243,7 @@ async function handleStorage(request, env, pathname, cors) {
 
   if (parts.length < 3) return respond(JSON.stringify({ error: 'Key required' }), 400, cors);
   const userKey = parts.slice(2).join('/');
-  if (!/^[a-zA-Z0-9_\-./]{1,256}$/.test(userKey)) return respond(JSON.stringify({ error: 'Invalid key' }), 400, cors);
+  if (!/^[a-zA-Z0-9_\-.:/@]{1,256}$/.test(userKey)) return respond(JSON.stringify({ error: 'Invalid key' }), 400, cors);
   const kvKey = `user:${token}:${userKey}`;
 
   if (request.method === 'GET') {
