@@ -47,12 +47,6 @@
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span class="friends-badge" id="friends-badge" style="display:none"></span>
         </button>
-        <button class="btn btn-icon" id="btn-plate-search" title="Search by plate">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        </button>
-        <button class="btn btn-icon" id="btn-export" title="Export incidents">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        </button>
         <button class="btn btn-icon" id="btn-settings" title="Settings">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
@@ -83,14 +77,6 @@
         <button class="chalk-banner-close" id="btn-chalk-exit">✕ Exit</button>
       </div>
 
-      <!-- Visibility filter -->
-      <div class="map-vis-filter" id="map-vis-filter">
-        <button class="vis-btn active" data-vis="all">All</button>
-        <button class="vis-btn" data-vis="mine">Mine</button>
-        <button class="vis-btn" data-vis="friends">Friends</button>
-        <button class="vis-btn" data-vis="public">Public</button>
-      </div>
-
       <!-- Map legend -->
       <div class="map-legend" id="map-legend">
         <div class="legend-row"><span class="legend-dot critical"></span>Critical</div>
@@ -102,6 +88,12 @@
 
     <!-- Incident drawer (slides in from right on desktop; below map on mobile) -->
     <aside class="incident-drawer" id="incident-drawer">
+      <!-- Feed navigation bar — only shown when opened from incident log -->
+      <div class="drawer-feed-nav" id="drawer-feed-nav" style="display:none;">
+        <button class="btn btn-ghost btn-sm" id="btn-drawer-prev">← Prev</button>
+        <button class="btn btn-ghost btn-sm" id="btn-drawer-back-to-log">↩ Log</button>
+        <button class="btn btn-ghost btn-sm" id="btn-drawer-next">Next →</button>
+      </div>
       <div class="drawer-header">
         <div class="drawer-title-row">
           <h2 class="drawer-title" id="drawer-title">Incident Details</h2>
@@ -172,8 +164,7 @@
                 </div>
               </div>
               <!-- Sub-type dropdown (hidden unless plateSubType = true) -->
-              <div id="repeat-offender-warning" style="display:none;margin:.25rem 0 .5rem;padding:.5rem .75rem;background:rgba(224,40,44,.12);border:1px solid var(--red,#c07070);border-radius:6px;font-size:.82rem;color:var(--red,#c07070);"></div>
-            <div class="form-group" id="plate-subtype-group" style="display:none;">
+              <div class="form-group" id="plate-subtype-group" style="display:none;">
                 <label class="form-label">Plate Type</label>
                 <select class="input" id="incident-plate-subtype">
                   <option value="">Standard</option>
@@ -298,51 +289,12 @@
         <div class="feed-search-row">
           <input type="text" class="input" id="feed-search" placeholder="Search by plate, type, notes…" />
         </div>
-        <div class="incident-feed" id="incident-feed">
-          <div class="feed-empty" id="feed-empty">
-            <div class="feed-empty-icon">🛣️</div>
-            <p>No incidents logged yet.</p>
-          </div>
+        <div class="feed-empty" id="feed-empty" style="display:none;">
+          <div class="feed-empty-icon">🛣️</div>
+          <p>No incidents logged yet.</p>
         </div>
+        <div class="incident-feed" id="incident-feed"></div>
         <div class="pagination" id="feed-pagination"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: Export -->
-  <div class="modal-overlay" id="modal-export" role="dialog" aria-modal="true" aria-label="Export Incidents">
-    <div class="modal modal-sm">
-      <div class="modal-header">
-        <h2 class="modal-title">Export Incidents</h2>
-        <button class="modal-close" data-close="modal-export">✕</button>
-      </div>
-      <div class="modal-body">
-        <p style="font-size:.88rem;color:var(--text2);margin-bottom:1.25rem;line-height:1.5;">
-          Export your incidents for backup or analysis. Only your own incidents are exported.
-        </p>
-        <div style="display:flex;flex-direction:column;gap:.65rem;">
-          <button class="btn btn-primary" id="btn-export-json" style="justify-content:center;">Export as JSON</button>
-          <button class="btn btn-outline" id="btn-export-csv" style="justify-content:center;">Export as CSV</button>
-        </div>
-        <p class="form-hint" id="export-count" style="margin-top:1rem;"></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: Plate Search -->
-  <div class="modal-overlay" id="modal-plate-search" role="dialog" aria-modal="true" aria-label="Search by Plate">
-    <div class="modal modal-sm">
-      <div class="modal-header">
-        <h2 class="modal-title">Plate Search</h2>
-        <button class="modal-close" data-close="modal-plate-search">✕</button>
-      </div>
-      <div class="modal-body">
-        <div style="display:flex;gap:.5rem;margin-bottom:.75rem;">
-          <select class="select" id="plate-search-state" style="flex:0 0 130px;"></select>
-          <input class="input" id="plate-search-number" placeholder="Plate number…" style="flex:1;text-transform:uppercase;" />
-          <button class="btn btn-primary btn-sm" id="btn-plate-search-go">Search</button>
-        </div>
-        <div id="plate-search-results"><div class="widget-empty">Enter a state and plate number to search.</div></div>
       </div>
     </div>
   </div>
