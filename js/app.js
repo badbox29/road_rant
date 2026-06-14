@@ -954,11 +954,15 @@ function closeDrawer() {
 // Count incidents matching a plate (normalized comparison)
 function countPlateIncidents(plateState, plateNumber) {
   const normPlate = plateNumber.replace(/\s+/g, '').toUpperCase();
-  return state.incidents.filter(i =>
-    i.plateState === plateState &&
-    (i.plateNumber || '').replace(/\s+/g, '').toUpperCase() === normPlate &&
-    i.lat && i.lng
-  ).length;
+  const allIncidents = [...state.incidents, ...(state.externalIncidents || [])];
+  const seen = new Set();
+  return allIncidents.filter(i => {
+    if (seen.has(i.id)) return false;
+    seen.add(i.id);
+    return i.plateState === plateState &&
+      (i.plateNumber || '').replace(/\s+/g, '').toUpperCase() === normPlate &&
+      i.lat && i.lng;
+  }).length;
 }
 
 function enterChalkMode(plateState, plateNumber) {
@@ -967,12 +971,16 @@ function enterChalkMode(plateState, plateNumber) {
 
   const normPlate = plateNumber.replace(/\s+/g, '').toUpperCase();
 
-  // Find all matching incidents — normalize both sides
-  const matchingIncs = state.incidents.filter(i =>
-    i.plateState === plateState &&
-    (i.plateNumber || '').replace(/\s+/g, '').toUpperCase() === normPlate &&
-    i.lat && i.lng
-  );
+  // Find all matching incidents across own + external, deduped by id
+  const allIncidents = [...state.incidents, ...(state.externalIncidents || [])];
+  const seen = new Set();
+  const matchingIncs = allIncidents.filter(i => {
+    if (seen.has(i.id)) return false;
+    seen.add(i.id);
+    return i.plateState === plateState &&
+      (i.plateNumber || '').replace(/\s+/g, '').toUpperCase() === normPlate &&
+      i.lat && i.lng;
+  });
   const matchingIds = new Set(matchingIncs.map(i => i.id));
   const matchingPts = matchingIncs.map(i => [i.lat, i.lng]);
 
