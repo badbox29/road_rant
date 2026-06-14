@@ -1258,6 +1258,10 @@ function confirmDelete() {
   if (inc && inc.visibility !== 'private' && state.workerUrl) {
     updatePlateIndex(inc, true).catch(() => {});
   }
+  // Push updated incidents to KV so deletion persists across devices
+  if (!Auth.isGuest() && state.workerUrl) {
+    pushIncidentsToWorker().catch(() => {});
+  }
 }
 
 // ── Modal system ──────────────────────────────────────────────────
