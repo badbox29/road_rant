@@ -1542,6 +1542,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       authMethod:   raw.authMethod   ?? 'token',
       linkedGoogle: raw.linkedGoogle ?? null,
       createdAt:    raw.createdAt    ?? Date.now(),
+      userName:     raw.userName     ?? state.userName  ?? null,
+      username:     raw.username     ?? state.username  ?? null,
     }),
     onSignedIn: async (data, isNewAccount) => {
       // data.userToken may be null for token accounts — the token was generated
@@ -1552,6 +1554,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (data.authMethod   !== undefined) state.authMethod   = data.authMethod;
       if (data.linkedGoogle !== undefined) state.linkedGoogle = data.linkedGoogle;
       if (data.createdAt    !== undefined) state.createdAt    = data.createdAt;
+      if (data.userName     !== undefined) state.userName     = data.userName;
+      if (data.username     !== undefined) state.username     = data.username;
       saveSettings();
       if (!isNewAccount) {
         await loadProfileFromKV();

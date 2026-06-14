@@ -281,7 +281,11 @@ const Auth = (() => {
       const res = await fetch(`${base}/storage/${encodeURIComponent(kvKey)}/profile`, {
         headers: { 'Authorization': `Bearer ${idToken}` },
       });
-      if(res.ok) remote = await res.json();
+      if(res.ok) {
+        const body = await res.json();
+        // Worker wraps storage values as { value: {...} }
+        remote = body?.value ?? body;
+      }
     } catch { /* new account — remote stays null */ }
 
     const isNewAccount = !remote;
@@ -289,6 +293,7 @@ const Auth = (() => {
     if(remote) {
       // Existing Google account — merge with defaults and apply
       const merged = C.mergeData(remote);
+      merged.userToken    = kvKey;          // never stored in profile — must set explicitly
       merged.workerUrl    = oldWorkerUrl || merged.workerUrl;
       merged.authMethod   = 'google';
       merged.linkedGoogle = profile;
