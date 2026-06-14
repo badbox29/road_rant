@@ -874,6 +874,16 @@ function openDrawer(incidentId) {
   const chalkBtn = document.getElementById('btn-chalk-mode');
   if (chalkBtn) chalkBtn.style.display = isRepeat ? '' : 'none';
 
+  // Hide Edit/Delete for incidents not owned by current user.
+  // Ownership: token match (preferred) or username match (fallback for older incidents).
+  const isOwner = (inc.token && inc.token === state.token)
+               || (!inc.token && inc.username && inc.username === state.username)
+               || (!inc.token && !inc.username); // legacy incidents with no ownership info — allow
+  const editBtn   = document.getElementById('btn-drawer-edit');
+  const deleteBtn = document.getElementById('btn-drawer-delete');
+  if (editBtn)   editBtn.style.display   = isOwner ? '' : 'none';
+  if (deleteBtn) deleteBtn.style.display = isOwner ? '' : 'none';
+
   const drawer = document.getElementById('incident-drawer');
   drawer.classList.add('open');
   document.getElementById('map-wrapper').classList.add('drawer-open');
@@ -1210,7 +1220,7 @@ function saveIncident() {
       state.incidents[idx] = { ...state.incidents[idx], ...data };
     }
   } else {
-    state.incidents.unshift({ id: uid(), ...data, createdAt: new Date().toISOString() });
+    state.incidents.unshift({ id: uid(), ...data, token: state.token || null, createdAt: new Date().toISOString() });
   }
 
   saveIncidents();
