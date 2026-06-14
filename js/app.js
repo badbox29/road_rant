@@ -1612,7 +1612,7 @@ document.getElementById('btn-friend-search')?.addEventListener('click', async ()
     const found = data; // { token, username }
 
     if (found.username === state.username) {
-      resultsEl.innerHTML = '<div class="widget-empty">That's you!</div>';
+      resultsEl.innerHTML = '<div class="widget-empty">That\'s you!</div>';
       return;
     }
 
