@@ -55,9 +55,10 @@ const state = {
   userName:     null,   // display name (free-form, not unique)
 
   // Social
-  friends:      [],
-  incomingReqs: [],
-  outgoingReqs: [],
+  friends:       [],
+  incomingReqs:  [],
+  outgoingReqs:  [],
+  notifications: [],
 
   // Data
   incidents:    [],
@@ -1316,6 +1317,349 @@ function updateFriendsBadge() {
   if (badge) badge.style.display = count > 0 ? '' : 'none';
 }
 
+// ── Social / Friends ──────────────────────────────────────────────
+
+function _esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Render helpers ────────────────────────────────────────────────
+
+function renderFriendsList() {
+  const el = document.getElementById('friends-list');
+  if (!el) return;
+  if (!state.friends.length) {
+    el.innerHTML = '<div class="widget-empty">No friends yet. Search for someone to add.</div>';
+    return;
+  }
+  el.innerHTML = state.friends.map(f => `
+    <div class="friends-row">
+      <span class="friends-username">@${_esc(f.username)}</span>
+      <button class="btn btn-sm btn-ghost" data-action="remove-friend" data-username="${_esc(f.username)}">Remove</button>
+    </div>
+  `).join('');
+}
+
+function renderRequestsList() {
+  const inEl  = document.getElementById('requests-incoming-content');
+  const outEl = document.getElementById('requests-outgoing-content');
+  const badge = document.getElementById('tab-badge-requests');
+
+  if (inEl) {
+    if (!state.incomingReqs.length) {
+      inEl.innerHTML = '<div class="widget-empty">No pending requests.</div>';
+    } else {
+      inEl.innerHTML = state.incomingReqs.map(r => `
+        <div class="friends-row">
+          <span class="friends-username">@${_esc(r.username)}</span>
+          <div class="friends-row-actions">
+            <button class="btn btn-sm btn-primary" data-action="accept-friend" data-username="${_esc(r.username)}" data-token="${_esc(r.token)}">Accept</button>
+            <button class="btn btn-sm btn-ghost"   data-action="decline-friend" data-username="${_esc(r.username)}">Decline</button>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  if (outEl) {
+    if (!state.outgoingReqs.length) {
+      outEl.innerHTML = '<div class="widget-empty">No outgoing requests.</div>';
+    } else {
+      outEl.innerHTML = state.outgoingReqs.map(r => `
+        <div class="friends-row">
+          <span class="friends-username">@${_esc(r.username)}</span>
+          <button class="btn btn-sm btn-ghost" data-action="cancel-friend" data-username="${_esc(r.username)}">Cancel</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  const total = state.incomingReqs.length + state.outgoingReqs.length;
+  if (badge) { badge.textContent = total; badge.style.display = total > 0 ? '' : 'none'; }
+}
+
+function renderNotificationsList() {
+  const el    = document.getElementById('notifications-content');
+  const badge = document.getElementById('tab-badge-notifications');
+  if (!el) return;
+  const notifs = state.notifications || [];
+  if (!notifs.length) {
+    el.innerHTML = '<div class="widget-empty">No notifications yet.</div>';
+    if (badge) badge.style.display = 'none';
+    return;
+  }
+  el.innerHTML = notifs.map(n => `
+    <div class="friends-row friends-notif-row">
+      <div>
+        <span class="friends-username">@${_esc(n.fromUsername)}</span>
+        <span class="friends-notif-preview"> shared an incident with you</span>
+        ${n.preview ? `<div class="friends-notif-text">${_esc(n.preview)}</div>` : ''}
+        <div class="friends-notif-time">${new Date(n.createdAt).toLocaleString()}</div>
+      </div>
+    </div>
+  `).join('');
+  if (badge) { badge.textContent = notifs.length; badge.style.display = notifs.length > 0 ? '' : 'none'; }
+}
+
+function renderAllSocialTabs() {
+  renderFriendsList();
+  renderRequestsList();
+  renderNotificationsList();
+  updateFriendsBadge();
+  // Show current username in modal header
+  const unEl = document.getElementById('friends-modal-username');
+  if (unEl) unEl.textContent = state.username ? `@${state.username}` : '';
+}
+
+// ── Worker helpers ────────────────────────────────────────────────
+
+async function lookupUsername(username) {
+  const clean = username.replace(/^@/, '').trim().toLowerCase();
+  if (!clean) return null;
+  try {
+    const authHeaders = await Auth._authHeaders('GET', state.token, null).catch(() => ({}));
+    const res = await workerFetch(`/username/${encodeURIComponent(clean)}`, 'GET');
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data; // { token, username }
+  } catch { return null; }
+}
+
+async function sendFriendRequest(targetUsername, targetToken) {
+  // Store outgoing request locally
+  const already = state.outgoingReqs.find(r => r.username === targetUsername)
+                || state.friends.find(f => f.username === targetUsername);
+  if (already) { showToast('Already friends or request pending.'); return false; }
+
+  state.outgoingReqs.push({ username: targetUsername, token: targetToken });
+  await saveProfileToKV();
+
+  // Notify target via worker
+  try {
+    const base = state.workerUrl.replace(/\/$/, '');
+    const body = JSON.stringify({
+      entryId:      `freq_${state.token}_${Date.now()}`,
+      fromUsername: state.username,
+      fromToken:    state.token,
+      preview:      `${state.username || 'Someone'} wants to be your friend on Road Rant.`,
+    });
+    const authHdrs = await Auth._authHeaders('POST', state.token, body).catch(() => ({}));
+    await fetch(`${base}/notify/${encodeURIComponent(targetToken)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHdrs },
+      body,
+    });
+  } catch { /* best-effort */ }
+
+  return true;
+}
+
+async function acceptFriendRequest(fromUsername, fromToken) {
+  // Move from incoming to friends on both sides
+  state.incomingReqs = state.incomingReqs.filter(r => r.username !== fromUsername);
+  if (!state.friends.find(f => f.username === fromUsername)) {
+    state.friends.push({ username: fromUsername, token: fromToken });
+  }
+  await saveProfileToKV();
+
+  // Notify the requester that they were accepted
+  try {
+    const base = state.workerUrl.replace(/\/$/, '');
+    const body = JSON.stringify({
+      entryId:      `faccept_${state.token}_${Date.now()}`,
+      fromUsername: state.username,
+      fromToken:    state.token,
+      preview:      `${state.username || 'Someone'} accepted your friend request.`,
+    });
+    const authHdrs = await Auth._authHeaders('POST', state.token, body).catch(() => ({}));
+    await fetch(`${base}/notify/${encodeURIComponent(fromToken)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHdrs },
+      body,
+    });
+  } catch { /* best-effort */ }
+}
+
+async function declineFriendRequest(fromUsername) {
+  state.incomingReqs = state.incomingReqs.filter(r => r.username !== fromUsername);
+  await saveProfileToKV();
+}
+
+async function cancelFriendRequest(targetUsername) {
+  state.outgoingReqs = state.outgoingReqs.filter(r => r.username !== targetUsername);
+  await saveProfileToKV();
+}
+
+async function removeFriend(username) {
+  state.friends = state.friends.filter(f => f.username !== username);
+  await saveProfileToKV();
+}
+
+// ── Notification pull ─────────────────────────────────────────────
+// Notifications are stored in KV as user:<token>:notification/<entryId>
+// We pull them by listing keys with that prefix.
+
+async function pullNotificationsFromWorker() {
+  if (Auth.isGuest() || !state.token || !state.workerUrl) return;
+  try {
+    const res  = await workerFetch(`/storage/${encodeURIComponent(state.token)}`, 'GET');
+    if (!res.ok) return;
+    const data = await res.json();
+    const notifKeys = (data.keys || [])
+      .filter(k => k.key.startsWith('notification/'))
+      .map(k => k.key);
+
+    const notifs = [];
+    for (const key of notifKeys) {
+      try {
+        const r = await workerFetch(`/storage/${encodeURIComponent(state.token)}/${key}`, 'GET');
+        if (r.ok) {
+          const d = await r.json();
+          const val = d?.value ?? d;
+          notifs.push(val);
+          // Also check if this is an incoming friend request
+          if (val.entryId?.startsWith('freq_') && val.fromUsername && val.fromToken) {
+            const exists = state.incomingReqs.find(r => r.username === val.fromUsername)
+                        || state.friends.find(f => f.username === val.fromUsername);
+            if (!exists) {
+              state.incomingReqs.push({ username: val.fromUsername, token: val.fromToken });
+            }
+          }
+        }
+      } catch { /* skip bad keys */ }
+    }
+    state.notifications = notifs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    await saveProfileToKV();
+  } catch { /* silent */ }
+}
+
+// ── Social modal open ─────────────────────────────────────────────
+
+async function openSocialModal() {
+  if (Auth.isGuest()) {
+    showToast('Create an account to use social features.');
+    return;
+  }
+  if (!state.username) {
+    showToast('Set a username in Settings before using social features.');
+    openModal('modal-settings');
+    return;
+  }
+  renderAllSocialTabs();
+  openModal('modal-friends');
+  // Pull fresh notifications in background
+  pullNotificationsFromWorker().then(() => {
+    renderAllSocialTabs();
+  });
+}
+
+// ── Event delegation for social modal ────────────────────────────
+
+document.getElementById('modal-friends')?.addEventListener('click', async e => {
+  const action   = e.target.closest('[data-action]')?.dataset.action;
+  const username = e.target.closest('[data-action]')?.dataset.username;
+  const token    = e.target.closest('[data-action]')?.dataset.token;
+  if (!action) return;
+
+  switch (action) {
+    case 'remove-friend':
+      if (confirm(`Remove @${username} from friends?`)) {
+        await removeFriend(username);
+        renderAllSocialTabs();
+        showToast(`Removed @${username}.`);
+      }
+      break;
+
+    case 'accept-friend':
+      await acceptFriendRequest(username, token);
+      renderAllSocialTabs();
+      showToast(`You and @${username} are now friends!`);
+      break;
+
+    case 'decline-friend':
+      await declineFriendRequest(username);
+      renderAllSocialTabs();
+      showToast(`Declined request from @${username}.`);
+      break;
+
+    case 'cancel-friend':
+      await cancelFriendRequest(username);
+      renderAllSocialTabs();
+      showToast(`Cancelled request to @${username}.`);
+      break;
+  }
+});
+
+// ── Friend search ─────────────────────────────────────────────────
+
+document.getElementById('btn-friend-search')?.addEventListener('click', async () => {
+  const input = document.getElementById('friend-search-input');
+  const resultsEl = document.getElementById('friend-search-results');
+  const query = input?.value.trim();
+  if (!query) return;
+  if (!state.username) { showToast('Set a username first.'); return; }
+
+  resultsEl.innerHTML = '<div class="widget-empty">Searching…</div>';
+
+  try {
+    const clean = query.replace(/^@/, '').toLowerCase();
+    const res   = await workerFetch(`/username/${encodeURIComponent(clean)}`, 'GET');
+    if (!res.ok) {
+      resultsEl.innerHTML = '<div class="widget-empty">No user found.</div>';
+      return;
+    }
+    const data = await res.json();
+    const found = data; // { token, username }
+
+    if (found.username === state.username) {
+      resultsEl.innerHTML = '<div class="widget-empty">That's you!</div>';
+      return;
+    }
+
+    const isFriend  = state.friends.find(f => f.username === found.username);
+    const isPending = state.outgoingReqs.find(r => r.username === found.username);
+    const isIncoming = state.incomingReqs.find(r => r.username === found.username);
+
+    let actionBtn = '';
+    if (isFriend) {
+      actionBtn = `<span class="friends-tag">Friends</span>`;
+    } else if (isPending) {
+      actionBtn = `<span class="friends-tag">Request Sent</span>`;
+    } else if (isIncoming) {
+      actionBtn = `<button class="btn btn-sm btn-primary" data-action="accept-friend" data-username="${_esc(found.username)}" data-token="${_esc(found.token)}">Accept</button>`;
+    } else {
+      actionBtn = `<button class="btn btn-sm btn-primary" id="btn-add-friend-result">Add Friend</button>`;
+    }
+
+    resultsEl.innerHTML = `
+      <div class="friends-row">
+        <span class="friends-username">@${_esc(found.username)}</span>
+        ${actionBtn}
+      </div>
+    `;
+
+    document.getElementById('btn-add-friend-result')?.addEventListener('click', async () => {
+      const ok = await sendFriendRequest(found.username, found.token);
+      if (ok) {
+        renderAllSocialTabs();
+        resultsEl.innerHTML = `
+          <div class="friends-row">
+            <span class="friends-username">@${_esc(found.username)}</span>
+            <span class="friends-tag">Request Sent</span>
+          </div>`;
+        showToast(`Friend request sent to @${found.username}!`);
+      }
+    });
+  } catch {
+    resultsEl.innerHTML = '<div class="widget-empty">Search failed — try again.</div>';
+  }
+});
+
+document.getElementById('friend-search-input')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('btn-friend-search')?.click();
+});
+
+
 // ── Map control buttons ───────────────────────────────────────────
 
 document.getElementById('btn-map-locate')?.addEventListener('click', () => {
@@ -1336,7 +1680,7 @@ document.getElementById('btn-my-incidents')?.addEventListener('click', () => {
   renderFeed();
   openModal('modal-my-incidents');
 });
-document.getElementById('btn-friends')?.addEventListener('click', () => openModal('modal-friends'));
+document.getElementById('btn-friends')?.addEventListener('click', openSocialModal);
 document.getElementById('btn-settings')?.addEventListener('click', openSettingsModal);
 
 // ── Drawer buttons ────────────────────────────────────────────────
