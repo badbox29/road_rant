@@ -2136,6 +2136,11 @@ document.getElementById('plate-search-number')?.addEventListener('keydown', e =>
   if (e.key === 'Enter') runPlateSearch();
 });
 
+document.getElementById('btn-plate-search-log')?.addEventListener('click', () => {
+  closeModal('modal-plate-search');
+  openIncidentModal();
+});
+
 // Visibility filter
 document.querySelectorAll('.vis-btn').forEach(btn => {
   btn.addEventListener('click', () => {
