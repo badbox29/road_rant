@@ -378,11 +378,11 @@ async function handlePlates(request, env, pathname, cors) {
   const parts = pathname.split('/').filter(Boolean);
   if (parts.length < 3) return respond(JSON.stringify({ error: 'State and plate required' }), 400, cors);
 
-  const state = parts[1].toUpperCase();
+  const state = parts[1]; // stored as full name e.g. "Georgia" or abbrev "GA"
   const plate = parts[2].toUpperCase().replace(/\s+/g, '');
   const id    = parts[3] || null;
 
-  if (!/^[A-Z]{2}$/.test(state))        return respond(JSON.stringify({ error: 'Invalid state' }), 400, cors);
+  if (!state || state.length < 2 || state.length > 32) return respond(JSON.stringify({ error: 'Invalid state' }), 400, cors);
   if (!/^[A-Z0-9]{1,10}$/.test(plate))  return respond(JSON.stringify({ error: 'Invalid plate' }), 400, cors);
 
   const plateKey = `plate:${state}:${plate}`;
