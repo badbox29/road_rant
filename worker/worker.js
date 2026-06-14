@@ -275,6 +275,10 @@ async function handleStorage(request, env, pathname, cors) {
     }
     delete parsed._legacyToken;
     await kv.put(kvKey, JSON.stringify(parsed), { expirationTtl: KV_TTL });
+    // If incidents were updated, rebuild feed indexes
+    if (userKey === 'incidents' && Array.isArray(parsed)) {
+      await updateFeedIndexes(token, parsed, kv);
+    }
     return respond(JSON.stringify({ ok: true }), 200, cors);
   }
 
@@ -282,6 +286,10 @@ async function handleStorage(request, env, pathname, cors) {
     const auth = await checkKvAuth(request, token, cors, null, env);
     if (!auth.ok) return auth.response;
     await kv.delete(kvKey);
+    // If incidents were deleted, rebuild feed indexes with empty list for this token
+    if (userKey === 'incidents') {
+      await updateFeedIndexes(token, [], kv);
+    }
     return respond(JSON.stringify({ ok: true }), 200, cors);
   }
 
@@ -461,6 +469,88 @@ async function readBodyText(request) {
   } catch { return null; }
 }
 
+// ── Feed indexes ─────────────────────────────────────────────────
+//
+// KV keys:
+//   feed:public                    — array of all public incidents (newest 500)
+//   feed:friends:<token>           — incidents shared with <token> by their friends
+//
+// Updated on every incidents PUT/DELETE via updateFeedIndexes().
+// Called with (token, incidents, kv) after auth passes.
+
+async function updateFeedIndexes(token, incidents, kv) {
+  // Load this user's profile to get their friends list
+  const profileRaw = await kv.get(`user:${token}:profile`, { type: 'text' });
+  let friends = [];
+  if (profileRaw) {
+    try { friends = JSON.parse(profileRaw).friends || []; } catch {}
+  }
+
+  // ── Public index ──────────────────────────────────────────────
+  const publicRaw = await kv.get('feed:public', { type: 'text' });
+  let publicFeed = [];
+  if (publicRaw) { try { publicFeed = JSON.parse(publicRaw); } catch {} }
+
+  // Remove all existing entries from this token, then re-add current public ones
+  publicFeed = publicFeed.filter(i => i._token !== token);
+  for (const inc of incidents) {
+    if (inc.visibility === 'public' && inc.lat && inc.lng) {
+      publicFeed.push({ ...inc, _token: token });
+    }
+  }
+  // Keep newest 500
+  publicFeed.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  publicFeed = publicFeed.slice(0, 500);
+  await kv.put('feed:public', JSON.stringify(publicFeed), { expirationTtl: KV_TTL });
+
+  // ── Friends index — update each friend's feed ─────────────────
+  // Get all tokens that have this user as a friend (i.e. mutual friends)
+  // We update feed:friends:<friendToken> for each friend in our list
+  for (const friend of friends) {
+    if (!friend.token || !isValidToken(friend.token)) continue;
+    const feedKey = `feed:friends:${friend.token}`;
+    const friendFeedRaw = await kv.get(feedKey, { type: 'text' });
+    let friendFeed = [];
+    if (friendFeedRaw) { try { friendFeed = JSON.parse(friendFeedRaw); } catch {} }
+
+    // Remove all existing entries from this token in friend's feed
+    friendFeed = friendFeed.filter(i => i._token !== token);
+    // Add current friends-or-public incidents
+    for (const inc of incidents) {
+      if ((inc.visibility === 'friends' || inc.visibility === 'public') && inc.lat && inc.lng) {
+        friendFeed.push({ ...inc, _token: token });
+      }
+    }
+    friendFeed.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    friendFeed = friendFeed.slice(0, 500);
+    await kv.put(feedKey, JSON.stringify(friendFeed), { expirationTtl: KV_TTL });
+  }
+}
+
+async function handleFeed(request, env, pathname, cors) {
+  const kv    = env[KV_BINDING];
+  const parts = pathname.split('/').filter(Boolean);
+  // parts[0] = 'feed', parts[1] = 'public' | 'friends', parts[2] = token (for friends)
+
+  // GET /feed/public — no auth required
+  if (parts[1] === 'public' && request.method === 'GET') {
+    const raw = await kv.get('feed:public', { type: 'text' });
+    return respond(raw || '[]', 200, cors);
+  }
+
+  // GET /feed/friends/<token> — auth required
+  if (parts[1] === 'friends' && parts[2] && request.method === 'GET') {
+    const token = decodeURIComponent(parts[2]);
+    if (!isValidToken(token)) return respond(JSON.stringify({ error: 'Invalid token' }), 400, cors);
+    const auth = await checkKvAuth(request, token, cors, null, env);
+    if (!auth.ok) return auth.response;
+    const raw = await kv.get(`feed:friends:${token}`, { type: 'text' });
+    return respond(raw || '[]', 200, cors);
+  }
+
+  return respond(JSON.stringify({ error: 'Not found' }), 404, cors);
+}
+
 // ── Entry point ───────────────────────────────────────────────────
 
 export default {
@@ -494,6 +584,7 @@ export default {
 
       const path = url.pathname.replace(/\/$/, '');
 
+      if (path.startsWith('/feed/'))      return await handleFeed(request, env, path, cors);
       if (path.startsWith('/storage/'))  return await handleStorage(request, env, path, cors);
       if (path.startsWith('/username/')) return await handleUsername(request, env, path, cors);
       if (path.startsWith('/notify/') && method === 'POST') return await handleNotify(request, env, path, cors);
