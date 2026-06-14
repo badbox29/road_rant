@@ -183,6 +183,22 @@ async function handleAuth(url, method, request, env, cors) {
     let parsed; try { parsed = JSON.parse(existing); } catch { return respond(JSON.stringify({ error: 'Corrupt data' }), 500, cors); }
     const kvKey    = `google:${payload.sub}`;
     const newToken = kvKey; // alias for clarity
+
+    // Guard: check if this Google ID is already linked to a different account.
+    // If a profile exists under the Google key and its source token differs from
+    // oldToken, this Google account belongs to someone else — block the migration.
+    const existingGoogleProfile = await kv.get(`user:${newToken}:profile`, { type: 'text' });
+    if (existingGoogleProfile) {
+      let existingParsed;
+      try { existingParsed = JSON.parse(existingGoogleProfile); } catch {}
+      // Allow re-migration if the same token is migrating again (idempotent)
+      const tombstone = await kv.get(`migrated:${oldToken}`, { type: 'text' });
+      const alreadyMigrated = tombstone === newToken;
+      if (!alreadyMigrated) {
+        return respond(JSON.stringify({ error: 'This Google account is already linked to another Road Rant account.' }), 409, cors);
+      }
+    }
+
     parsed.authMethod = 'google'; parsed.linkedGoogle = payload; parsed.lastModified = Date.now();
 
     // Copy profile to new Google key (with /profile suffix to match storage route)
