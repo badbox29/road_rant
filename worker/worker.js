@@ -345,7 +345,7 @@ async function handleNotify(request, env, pathname, cors) {
   const kv    = env[KV_BINDING];
   const parts = pathname.split('/').filter(Boolean);
   if (parts.length < 2) return respond(JSON.stringify({ error: 'Target token required' }), 400, cors);
-  const targetToken = parts[1];
+  const targetToken = decodeURIComponent(parts[1]);
   if (!isValidToken(targetToken)) return respond(JSON.stringify({ error: 'Invalid token' }), 400, cors);
 
   const body = await readBody(request);
@@ -353,10 +353,11 @@ async function handleNotify(request, env, pathname, cors) {
   const { entryId, fromUsername, fromToken, preview } = body;
   if (!entryId || !fromUsername || !fromToken) return respond(JSON.stringify({ error: 'entryId, fromUsername, fromToken required' }), 400, cors);
 
-  const storedUsername = await kv.get(`token_username:${fromToken}`, { type: 'text' });
-  if (!storedUsername || storedUsername.toLowerCase() !== fromUsername.toLowerCase()) {
-    return respond(JSON.stringify({ error: 'fromToken/fromUsername mismatch' }), 403, cors);
-  }
+  // Verify sender identity via HMAC/Bearer auth rather than username registry lookup.
+  // Username registry only stores plain token accounts; Google accounts use google: prefix
+  // which may not have a token_username entry. Auth headers already prove identity.
+  const auth = await checkKvAuth(request, fromToken, cors, JSON.stringify(body), env);
+  if (!auth.ok) return auth.response;
 
   await kv.put(
     `user:${targetToken}:notification/${entryId}`,
