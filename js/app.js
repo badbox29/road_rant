@@ -851,7 +851,8 @@ function renderMapPins() {
 }
 
 function fitMapToIncidents() {
-  const pts = state.incidents.filter(i => i.lat && i.lng).map(i => [i.lat, i.lng]);
+  const allForFit = [...state.incidents, ...(state.externalIncidents || [])];
+  const pts = allForFit.filter(i => i.lat && i.lng).map(i => [i.lat, i.lng]);
   if (pts.length === 0) return;
   if (pts.length === 1) { state.mainMap.setView(pts[0], 14); return; }
   state.mainMap.fitBounds(L.latLngBounds(pts), { padding: [40, 40] });
@@ -988,7 +989,8 @@ function enterChalkMode(plateState, plateNumber) {
   state.mainMap.removeLayer(state.markerCluster);
   // Small delay to let cluster fully unload
   Object.entries(state.markers).forEach(([id, marker]) => {
-    const inc = state.incidents.find(i => i.id === id);
+    const inc = state.incidents.find(i => i.id === id)
+             || (state.externalIncidents || []).find(i => i.id === id);
     if (!inc) return;
     const sev = getSeverity(inc.incidentType);
     if (matchingIds.has(id)) {
@@ -1039,7 +1041,8 @@ function exitChalkMode() {
 
   // Restore cluster layer with default pin colors
   Object.entries(state.markers).forEach(([id, marker]) => {
-    const inc = state.incidents.find(i => i.id === id);
+    const inc = state.incidents.find(i => i.id === id)
+             || (state.externalIncidents || []).find(i => i.id === id);
     if (!inc) return;
     marker.setIcon(makePinIcon(getSeverity(inc.incidentType)));
   });
@@ -1084,7 +1087,11 @@ function renderFeed() {
   const empty     = document.getElementById('feed-empty');
   if (!container) return;
 
-  let filtered = state.incidents;
+  // Combine own + external, dedupe by id, sort newest first
+  const seen = new Set();
+  let filtered = [...state.incidents, ...(state.externalIncidents || [])]
+    .filter(i => { if (seen.has(i.id)) return false; seen.add(i.id); return true; })
+    .sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
   if (state.filterType !== 'all') {
     filtered = filtered.filter(i => getSeverity(i.incidentType) === state.filterType);
   }
@@ -1157,7 +1164,11 @@ function renderMobileFeed() {
   const empty     = document.getElementById('mobile-feed-empty');
   if (!container) return;
 
-  const recent = state.incidents.slice().sort((a, b) => new Date(b.datetime) - new Date(a.datetime)).slice(0, 10);
+  const seen = new Set();
+  const recent = [...state.incidents, ...(state.externalIncidents || [])]
+    .filter(i => { if (seen.has(i.id)) return false; seen.add(i.id); return true; })
+    .sort((a, b) => new Date(b.datetime) - new Date(a.datetime))
+    .slice(0, 10);
   if (recent.length === 0) {
     container.innerHTML = '';
     if (empty) empty.style.display = '';
@@ -1777,7 +1788,8 @@ document.getElementById('btn-drawer-edit')?.addEventListener('click', () => {
 
 document.getElementById('btn-chalk-mode')?.addEventListener('click', () => {
   if (!state.activeIncidentId) return;
-  const inc = state.incidents.find(i => i.id === state.activeIncidentId);
+  const inc = state.incidents.find(i => i.id === state.activeIncidentId)
+           || (state.externalIncidents || []).find(i => i.id === state.activeIncidentId);
   if (!inc || !inc.plateState || !inc.plateNumber) {
     showToast('No plate data for this incident.');
     return;
