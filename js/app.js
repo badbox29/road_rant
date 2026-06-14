@@ -1268,7 +1268,7 @@ function saveIncident() {
       state.incidents[idx] = { ...state.incidents[idx], ...data };
     }
   } else {
-    state.incidents.unshift({ id: uid(), ...data, token: state.token || null, createdAt: new Date().toISOString() });
+    state.incidents.unshift({ id: uid(), ...data, token: state.token || null, username: state.username || null, createdAt: new Date().toISOString() });
   }
 
   saveIncidents();
