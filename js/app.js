@@ -1743,6 +1743,7 @@ async function pullNotificationsFromWorker() {
 
     const notifs = [];
     const processedKeys = []; // keys to delete after user dismisses
+    let newFriendAdded = false;
     for (const key of notifKeys) {
       try {
         // workerFetch returns { value: {...} } for storage GETs
@@ -1763,6 +1764,7 @@ async function pullNotificationsFromWorker() {
           state.outgoingReqs = state.outgoingReqs.filter(r => r.username !== val.fromUsername);
           if (!state.friends.find(f => f.username === val.fromUsername)) {
             state.friends.push({ username: val.fromUsername, token: val.fromToken });
+            newFriendAdded = true;
           }
           // Auto-dismiss accepted requests — no need to show in alerts
           processedKeys.push(key);
@@ -1777,6 +1779,10 @@ async function pullNotificationsFromWorker() {
       .filter(n => !n.entryId?.startsWith('faccept_')) // accepted requests handled silently
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     await saveProfileToKV();
+    // If a new friend was added, re-push incidents so worker rebuilds feed with updated friends list
+    if (newFriendAdded && !Auth.isGuest() && state.workerUrl) {
+      pushIncidentsToWorker().catch(() => {});
+    }
   } catch { /* silent */ }
 }
 
@@ -2208,12 +2214,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderMobileFeed();
   updateFriendsBadge();
 
-  // Periodic sync every 60s
+  // Periodic sync every 2 minutes — pulls own incidents + public/friends feed
   setInterval(async () => {
     if (state.workerUrl && !Auth.isGuest()) {
-      await pullIncidentsFromWorker();
+      await pullIncidentsFromWorker(); // also calls pullFeedFromWorker internally
       renderMapPins();
       renderMobileFeed();
+      renderFeed();
+      updateFriendsBadge();
     }
   }, 60000);
 });
