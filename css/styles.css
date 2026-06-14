@@ -717,6 +717,34 @@ select.input { cursor: pointer; appearance: none;
 .friends-notif-text { font-size: .8rem; color: var(--text3); margin-top: .2rem; font-style: italic; }
 .friends-notif-time { font-size: .72rem; color: var(--text3); margin-top: .2rem; }
 .friends-requests-section { margin-bottom: 1rem; }
+
+/* ── Visibility filter ──────────────────────────────────────────── */
+.map-vis-filter {
+  position: absolute;
+  top: .65rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.35);
+}
+.vis-btn {
+  padding: .3rem .75rem;
+  font-size: .78rem;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+.vis-btn:hover { background: var(--surface2); color: var(--text1); }
+.vis-btn.active { background: var(--accent); color: #fff; }
 .form-label-hint { font-size:.72rem; font-weight:400; color:var(--text3); margin-left:.4rem; }
 .tags-input-wrap { border:1px solid var(--border); border-radius:6px; padding:.4rem .5rem; background:var(--input-bg,var(--surface2)); display:flex; flex-wrap:wrap; gap:.35rem; align-items:center; cursor:text; }
 .tags-input-wrap:focus-within { border-color:var(--accent); }
