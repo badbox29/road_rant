@@ -219,7 +219,15 @@ async function workerFetch(path, method = 'GET', body = null) {
   const opts = { method, headers: { 'Content-Type': 'application/json', ...authHeaders } };
   if (bodyStr !== null) opts.body = bodyStr;
   const res = await fetch(url, opts);
-  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || `HTTP ${res.status}`); }
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    // Google session expired — trigger re-auth and abort current operation
+    if (res.status === 401 && state.authMethod === 'google') {
+      Auth.refreshGoogleSession();
+      throw new Error('Session expired — please sign in again.');
+    }
+    throw new Error(e.error || `HTTP ${res.status}`);
+  }
   return res.json();
 }
 
