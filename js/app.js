@@ -58,7 +58,8 @@ const state = {
   friends:       [],
   incomingReqs:  [],
   outgoingReqs:  [],
-  notifications: [],
+  notifications:      [],
+  externalIncidents:  [],
 
   // Data
   incidents:    [],
@@ -259,8 +260,40 @@ async function pullIncidentsFromWorker() {
       state.incidents = [...remote, ...localOnly];
       saveIncidents();
     }
+    // Pull public + friends feed after own incidents
+    await pullFeedFromWorker();
   } catch (e) {
     console.warn('[Worker] pull failed:', e.message);
+  }
+}
+
+async function pullFeedFromWorker() {
+  if (!state.workerUrl || !state.token || Auth.isGuest()) return;
+  const base = state.workerUrl.replace(/\/$/, '');
+  try {
+    // Pull public feed — no auth needed
+    const pubRes = await fetch(`${base}/feed/public`);
+    const pubIncidents = pubRes.ok ? await pubRes.json() : [];
+
+    // Pull friends feed — auth required
+    const authHdrs = await Auth._authHeaders('GET', state.token, null).catch(() => ({}));
+    const friendsRes = await fetch(
+      `${base}/feed/friends/${encodeURIComponent(state.token)}`,
+      { headers: { 'Content-Type': 'application/json', ...authHdrs } }
+    );
+    const friendsIncidents = friendsRes.ok ? await friendsRes.json() : [];
+
+    // Merge external incidents — exclude own (already in state.incidents)
+    const ownToken = state.token;
+    const external = [...pubIncidents, ...friendsIncidents]
+      .filter(i => i._token !== ownToken)
+      // deduplicate by id
+      .filter((i, idx, arr) => arr.findIndex(x => x.id === i.id) === idx);
+
+    state.externalIncidents = external;
+  } catch (e) {
+    console.warn('[Feed] pull failed:', e.message);
+    state.externalIncidents = [];
   }
 }
 
@@ -786,7 +819,13 @@ function renderMapPins() {
   state.markerCluster.clearLayers();
   state.markers = {};
 
-  state.incidents.forEach(inc => {
+  // Combine own + external (public/friends) incidents, deduped by id
+  const allIncidents = [
+    ...state.incidents,
+    ...(state.externalIncidents || []).filter(e => !state.incidents.find(o => o.id === e.id)),
+  ];
+
+  allIncidents.forEach(inc => {
     if (!inc.lat || !inc.lng) return;
     const sev    = getSeverity(inc.incidentType);
     const marker = L.marker([inc.lat, inc.lng], { icon: makePinIcon(sev) });
@@ -798,7 +837,7 @@ function renderMapPins() {
     state.markerCluster.addLayer(marker);
   });
 
-  if (state.incidents.some(i => i.lat && i.lng)) {
+  if (allIncidents.some(i => i.lat && i.lng)) {
     fitMapToIncidents();
   }
 }
@@ -813,7 +852,8 @@ function fitMapToIncidents() {
 // ── Drawer ────────────────────────────────────────────────────────
 
 function openDrawer(incidentId) {
-  const inc = state.incidents.find(i => i.id === incidentId);
+  const inc = state.incidents.find(i => i.id === incidentId)
+           || (state.externalIncidents || []).find(i => i.id === incidentId);
   if (!inc) return;
   state.activeIncidentId = incidentId;
 
@@ -1480,6 +1520,8 @@ async function acceptFriendRequest(fromUsername, fromToken) {
     state.friends.push({ username: fromUsername, token: fromToken });
   }
   await saveProfileToKV();
+  // Re-push incidents so worker rebuilds friend's feed index with our friends-only entries
+  if (!Auth.isGuest() && state.workerUrl) pushIncidentsToWorker().catch(() => {});
 
   // Notify the requester that they were accepted
   try {
