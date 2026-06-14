@@ -1570,13 +1570,11 @@ function exportIncidents(format) {
     const rows = incidents.map(i =>
       headers.map(h => {
         const v = i[h] ?? '';
-        return typeof v === 'string' && (v.includes(',') || v.includes('"') || v.includes('
-'))
+        return typeof v === 'string' && (v.includes(',') || v.includes('"') || v.includes('\n'))
           ? `"${v.replace(/"/g, '""')}"` : v;
       }).join(',')
     );
-    content  = [headers.join(','), ...rows].join('
-');
+    content  = [headers.join(','), ...rows].join('\n');
     filename = `road-rant-incidents-${new Date().toISOString().slice(0,10)}.csv`;
     mime     = 'text/csv';
   }
