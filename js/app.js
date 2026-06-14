@@ -797,6 +797,13 @@ function initMiniMap() {
   state._miniMarkerRef = (m) => { state.miniMarker = m; };
 }
 
+// Init tags input — called once after DOM ready
+function initTagsInputOnce() {
+  if (window._tagsInputInited) return;
+  window._tagsInputInited = true;
+  initTagsInput();
+}
+
 async function reverseGeocode(lat, lng) {
   try {
     const res  = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
@@ -916,6 +923,11 @@ function openDrawer(incidentId) {
     <div class="detail-row">
       <span class="detail-label">Reported by</span>
       <span class="detail-value">@${inc.username}</span>
+    </div>` : ''}
+    ${inc.tags?.length ? `
+    <div class="detail-row">
+      <span class="detail-label">Tagged</span>
+      <span class="detail-value">${inc.tags.map(t => `@${t}`).join(', ')}</span>
     </div>` : ''}
   `;
 
@@ -1210,6 +1222,10 @@ function openIncidentModal(editId = null) {
     resetIncidentForm();
   }
 
+  // Reset tags for new incidents; populate for edits
+  if (!editId) { window._incidentTags = []; renderTagChips(); }
+  initTagsInputOnce();
+
   openModal('modal-incident');
 
   // Populate AFTER modal is visible so select options are rendered
@@ -1258,6 +1274,8 @@ function populateIncidentForm(inc) {
   document.getElementById('incident-lat').value            = inc.lat           || '';
   document.getElementById('incident-lng').value            = inc.lng           || '';
   document.getElementById('incident-notes').value          = inc.notes         || '';
+  window._incidentTags = inc.tags ? [...inc.tags] : [];
+  renderTagChips();
   document.getElementById('incident-visibility').value     = inc.visibility    || 'private';
   if (inc.plateState) onStateSelected(inc.plateState);
   renderPlatePreview();
@@ -1276,10 +1294,11 @@ function collectIncidentForm() {
     lng:          parseFloat(document.getElementById('incident-lng').value) || null,
     notes:        document.getElementById('incident-notes').value.trim(),
     visibility:   document.getElementById('incident-visibility').value,
+    tags:         [...(window._incidentTags || [])],
   };
 }
 
-function saveIncident() {
+async function saveIncident() {
   const data = collectIncidentForm();
   if (!data.plateState || !data.plateNumber) { showToast('Please select a state and enter a plate number.'); return; }
   if (!data.incidentType) { showToast('Please select an incident type.'); return; }
@@ -1293,15 +1312,41 @@ function saveIncident() {
     state.incidents.unshift({ id: uid(), ...data, token: state.token || null, username: state.username || null, createdAt: new Date().toISOString() });
   }
 
+  const savedTags  = [...(window._incidentTags || [])];
+  const isNew       = !state.editingId;
   saveIncidents();
   closeModal('modal-incident');
   renderMapPins();
   renderMobileFeed();
   showToast(state.editingId ? 'Incident updated.' : 'Incident logged. 📍');
   state.editingId = null;
+  window._incidentTags = [];
 
   // Async sync
   if (state.workerUrl && !Auth.isGuest()) pushIncidentsToWorker().catch(() => {});
+
+  // Send tag notifications for new incidents
+  if (isNew && savedTags.length && !Auth.isGuest() && state.username) {
+    for (const tag of savedTags) {
+      const friend = state.friends.find(f => f.username.toLowerCase() === tag.toLowerCase());
+      if (!friend) continue;
+      try {
+        const base = state.workerUrl.replace(/\/$/, '');
+        const body = JSON.stringify({
+          entryId:      `ftag_${state.token.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`,
+          fromUsername: state.username,
+          fromToken:    state.token,
+          preview:      `${state.username} tagged you in a ${getLabel(data.incidentType || '')} incident.`,
+        });
+        const authHdrs = await Auth._authHeaders('POST', state.token, body).catch(() => ({}));
+        await fetch(`${base}/notify/${encodeURIComponent(friend.token)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHdrs },
+          body,
+        });
+      } catch { /* best-effort */ }
+    }
+  }
 }
 
 function deleteIncident(id) {
@@ -1406,6 +1451,83 @@ function updateFriendsBadge() {
   if (badge) badge.style.display = count > 0 ? '' : 'none';
 }
 
+// ── Incident tagging ──────────────────────────────────────────────
+
+function renderTagChips() {
+  const chips = document.getElementById('tags-chips');
+  if (!chips) return;
+  const tags = window._incidentTags || [];
+  chips.innerHTML = tags.map(t => `
+    <span class="tag-chip">@${_esc(t)}<span class="tag-chip-remove" data-tag="${_esc(t)}">×</span></span>
+  `).join('');
+  chips.querySelectorAll('.tag-chip-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      window._incidentTags = (window._incidentTags || []).filter(t => t !== btn.dataset.tag);
+      renderTagChips();
+    });
+  });
+}
+
+function initTagsInput() {
+  const input   = document.getElementById('incident-tags-input');
+  const suggest = document.getElementById('tags-suggestions');
+  if (!input || !suggest) return;
+
+  input.addEventListener('input', () => {
+    const val = input.value.replace(/^@/, '').toLowerCase().trim();
+    if (!val) { suggest.style.display = 'none'; return; }
+
+    const matches = state.friends.filter(f =>
+      f.username.toLowerCase().startsWith(val) &&
+      !(window._incidentTags || []).includes(f.username)
+    );
+
+    if (!matches.length) { suggest.style.display = 'none'; return; }
+
+    suggest.innerHTML = matches.map(f =>
+      `<div class="tags-suggestion-item" data-username="${_esc(f.username)}">@${_esc(f.username)}</div>`
+    ).join('');
+    suggest.style.display = '';
+
+    suggest.querySelectorAll('.tags-suggestion-item').forEach(item => {
+      item.addEventListener('mousedown', e => {
+        e.preventDefault();
+        addTag(item.dataset.username);
+        input.value = '';
+        suggest.style.display = 'none';
+        input.focus();
+      });
+    });
+  });
+
+  input.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ',' || e.key === ' ') && input.value.trim()) {
+      e.preventDefault();
+      const val = input.value.replace(/^@/, '').trim();
+      const match = state.friends.find(f => f.username.toLowerCase() === val.toLowerCase());
+      if (match) addTag(match.username);
+      input.value = '';
+      suggest.style.display = 'none';
+    }
+    if (e.key === 'Escape') { suggest.style.display = 'none'; }
+  });
+
+  input.addEventListener('blur', () => {
+    setTimeout(() => { suggest.style.display = 'none'; }, 150);
+  });
+
+  // Click on wrap focuses input
+  document.getElementById('tags-input-wrap')?.addEventListener('click', () => input.focus());
+}
+
+function addTag(username) {
+  if (!window._incidentTags) window._incidentTags = [];
+  if (!window._incidentTags.includes(username)) {
+    window._incidentTags.push(username);
+    renderTagChips();
+  }
+}
+
 // ── Social / Friends ──────────────────────────────────────────────
 
 function _esc(s) {
@@ -1477,16 +1599,21 @@ function renderNotificationsList() {
     if (badge) badge.style.display = 'none';
     return;
   }
-  el.innerHTML = notifs.map(n => `
+  el.innerHTML = notifs.map(n => {
+    let verb = 'sent you a notification';
+    if (n.entryId?.startsWith('freq_'))    verb = 'sent you a friend request';
+    if (n.entryId?.startsWith('faccept_')) verb = 'accepted your friend request';
+    if (n.entryId?.startsWith('ftag_'))    verb = 'tagged you in an incident';
+    return `
     <div class="friends-row friends-notif-row">
       <div>
         <span class="friends-username">@${_esc(n.fromUsername)}</span>
-        <span class="friends-notif-preview"> shared an incident with you</span>
+        <span class="friends-notif-preview"> ${verb}</span>
         ${n.preview ? `<div class="friends-notif-text">${_esc(n.preview)}</div>` : ''}
         <div class="friends-notif-time">${new Date(n.createdAt).toLocaleString()}</div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
   if (badge) { badge.textContent = notifs.length; badge.style.display = notifs.length > 0 ? '' : 'none'; }
 }
 
@@ -1609,6 +1736,18 @@ async function pullNotificationsFromWorker() {
                       || state.friends.find(f => f.username === val.fromUsername);
           if (!exists) {
             state.incomingReqs.push({ username: val.fromUsername, token: val.fromToken });
+          }
+        }
+        // ftag_ notifications are alerts only — no state change needed, just display
+
+        // Detect accepted friend requests — move from outgoing to friends
+        if (val.entryId?.startsWith('faccept_') && val.fromUsername && val.fromToken) {
+          const wasPending = state.outgoingReqs.find(r => r.username === val.fromUsername);
+          if (wasPending) {
+            state.outgoingReqs = state.outgoingReqs.filter(r => r.username !== val.fromUsername);
+            if (!state.friends.find(f => f.username === val.fromUsername)) {
+              state.friends.push({ username: val.fromUsername, token: val.fromToken });
+            }
           }
         }
       } catch { /* skip bad keys */ }
