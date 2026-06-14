@@ -717,6 +717,17 @@ select.input { cursor: pointer; appearance: none;
 .friends-notif-text { font-size: .8rem; color: var(--text3); margin-top: .2rem; font-style: italic; }
 .friends-notif-time { font-size: .72rem; color: var(--text3); margin-top: .2rem; }
 .friends-requests-section { margin-bottom: 1rem; }
+.form-label-hint { font-size:.72rem; font-weight:400; color:var(--text3); margin-left:.4rem; }
+.tags-input-wrap { border:1px solid var(--border); border-radius:6px; padding:.4rem .5rem; background:var(--input-bg,var(--surface2)); display:flex; flex-wrap:wrap; gap:.35rem; align-items:center; cursor:text; }
+.tags-input-wrap:focus-within { border-color:var(--accent); }
+.tags-chips { display:contents; }
+.tag-chip { display:inline-flex; align-items:center; gap:.25rem; background:var(--accent); color:#fff; border-radius:4px; padding:.15rem .45rem; font-size:.78rem; }
+.tag-chip-remove { cursor:pointer; opacity:.7; font-size:.9rem; line-height:1; }
+.tag-chip-remove:hover { opacity:1; }
+#incident-tags-input { border:none; outline:none; background:transparent; color:var(--text1); font-size:.9rem; min-width:120px; flex:1; padding:.15rem 0; }
+.tags-suggestions { background:var(--surface2); border:1px solid var(--border); border-radius:6px; margin-top:.25rem; overflow:hidden; }
+.tags-suggestion-item { padding:.5rem .75rem; cursor:pointer; font-size:.88rem; color:var(--text1); }
+.tags-suggestion-item:hover { background:var(--surface3,var(--border)); }
 
 /* ── Settings ───────────────────────────────────────────────────── */
 .settings-section { margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
