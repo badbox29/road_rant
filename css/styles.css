@@ -736,14 +736,14 @@ select.input { cursor: pointer; appearance: none;
   padding: .3rem .75rem;
   font-size: .78rem;
   font-weight: 500;
-  background: transparent;
+  background: var(--surface2);
   border: none;
   color: var(--text3);
   cursor: pointer;
   transition: background .15s, color .15s;
   white-space: nowrap;
 }
-.vis-btn:hover { background: var(--surface2); color: var(--text1); }
+.vis-btn:hover { background: var(--surface3, color-mix(in srgb, var(--surface2) 70%, #000)); color: var(--text1); }
 .vis-btn.active { background: var(--accent); color: #fff; }
 .form-label-hint { font-size:.72rem; font-weight:400; color:var(--text3); margin-left:.4rem; }
 .tags-input-wrap { border:1px solid var(--border); border-radius:6px; padding:.4rem .5rem; background:var(--input-bg,var(--surface2)); display:flex; flex-wrap:wrap; gap:.35rem; align-items:center; cursor:text; }
