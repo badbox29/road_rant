@@ -248,6 +248,16 @@
                         placeholder="What happened? Any details that might help…"></textarea>
             </div>
 
+            <div class="form-group" id="incident-tags-group">
+              <label class="form-label">Tag Friends <span class="form-label-hint">@ to mention</span></label>
+              <div class="tags-input-wrap">
+                <div class="tags-chips" id="tags-chips"></div>
+                <input class="input" id="incident-tags-input" placeholder="@username…" autocomplete="off" />
+              </div>
+              <div class="tags-suggestions" id="tags-suggestions" style="display:none;"></div>
+              <p class="form-hint">Tagged friends receive an alert. Only your friends can be tagged.</p>
+            </div>
+
           </div><!-- /.incident-modal-right -->
 
         </div><!-- /.incident-modal-cols -->
