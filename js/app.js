@@ -863,6 +863,11 @@ function openDrawer(incidentId) {
       <span class="detail-label">Visibility</span>
       <span class="detail-value">${inc.visibility || 'private'}</span>
     </div>
+    ${inc.username ? `
+    <div class="detail-row">
+      <span class="detail-label">Reported by</span>
+      <span class="detail-value">@${inc.username}</span>
+    </div>` : ''}
   `;
 
   // Show chalk-line button only for repeat offenders (2+ incidents)
