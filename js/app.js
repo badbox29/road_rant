@@ -66,6 +66,8 @@ const state = {
   pageSize:     20,
   currentPage:  1,
   filterType:   'all',
+  visFilter:    'all',   // map visibility filter: all | mine | friends | public
+  homeLocation: null,    // { lat, lng, label }
   searchQuery:  '',
 
   // Map
@@ -157,6 +159,8 @@ function loadSettings() {
   state.workerUrl    = g('worker')     || '';
   state.authMethod   = g('auth_method')|| null;
   state.username     = g('username')   || null;
+  const rawHome = g('home_location');
+  state.homeLocation = rawHome ? JSON.parse(rawHome) : null;
   state.userName     = g('user_name')  || null;
   state.pageSize     = parseInt(g('page_size') || '20', 10);
   state.darkMode     = g('dark') !== 'false'; // default dark
@@ -188,6 +192,8 @@ function saveSettings() {
   s('worker',       state.workerUrl);
   s('auth_method',  state.authMethod);
   s('username',     state.username);
+  if (state.homeLocation) s('home_location', JSON.stringify(state.homeLocation));
+  else localStorage.removeItem(STORAGE_PREFIX + 'home_location');
   s('user_name',    state.userName);
   s('page_size',    state.pageSize);
   s('dark',         state.darkMode ? 'true' : 'false');
@@ -733,8 +739,11 @@ function renderDrawerThumbnail(stateKey, plateNum) {
 
 function initMainMap() {
   if (state.mainMap) return;
+  const initCenter = state.homeLocation
+    ? [state.homeLocation.lat, state.homeLocation.lng]
+    : [DEFAULT_LAT, DEFAULT_LNG];
   const map = L.map('main-map', {
-    center:  [DEFAULT_LAT, DEFAULT_LNG],
+    center:  initCenter,
     zoom:    DEFAULT_ZOOM,
     zoomControl: false,
   });
@@ -835,10 +844,22 @@ function renderMapPins() {
   state.markers = {};
 
   // Combine own + external (public/friends) incidents, deduped by id
-  const allIncidents = [
+  let allIncidents = [
     ...state.incidents,
     ...(state.externalIncidents || []).filter(e => !state.incidents.find(o => o.id === e.id)),
   ];
+
+  // Apply visibility filter
+  if (state.visFilter === 'mine') {
+    allIncidents = allIncidents.filter(i => state.incidents.find(o => o.id === i.id));
+  } else if (state.visFilter === 'friends') {
+    allIncidents = allIncidents.filter(i =>
+      (state.externalIncidents || []).find(e => e.id === i.id) ||
+      (i.visibility === 'friends' && state.incidents.find(o => o.id === i.id))
+    );
+  } else if (state.visFilter === 'public') {
+    allIncidents = allIncidents.filter(i => i.visibility === 'public');
+  }
 
   allIncidents.forEach(inc => {
     if (!inc.lat || !inc.lng) return;
@@ -1421,6 +1442,8 @@ function openSettingsModal() {
   if (userEl)     userEl.value     = state.username  || '';
   if (userNameEl) userNameEl.value = state.userName  || '';
   if (psEl)       psEl.value       = state.pageSize;
+  const homeEl = document.getElementById('settings-home-location');
+  if (homeEl && state.homeLocation) homeEl.value = state.homeLocation.label || '';
 
   // Let auth module set badge + toggle section visibility
   Auth.renderSettingsSection();
@@ -1526,6 +1549,114 @@ function addTag(username) {
     window._incidentTags.push(username);
     renderTagChips();
   }
+}
+
+// ── Export ────────────────────────────────────────────────────────
+
+function exportIncidents(format) {
+  const incidents = state.incidents;
+  if (!incidents.length) { showToast('No incidents to export.'); return; }
+
+  let content, filename, mime;
+
+  if (format === 'json') {
+    content  = JSON.stringify(incidents, null, 2);
+    filename = `road-rant-incidents-${new Date().toISOString().slice(0,10)}.json`;
+    mime     = 'application/json';
+  } else {
+    const headers = ['id','plateState','plateNumber','incidentType','datetime',
+                     'vehicleMake','vehicleColor','locationName','lat','lng',
+                     'notes','visibility','username','createdAt'];
+    const rows = incidents.map(i =>
+      headers.map(h => {
+        const v = i[h] ?? '';
+        return typeof v === 'string' && (v.includes(',') || v.includes('"') || v.includes('
+'))
+          ? `"${v.replace(/"/g, '""')}"` : v;
+      }).join(',')
+    );
+    content  = [headers.join(','), ...rows].join('
+');
+    filename = `road-rant-incidents-${new Date().toISOString().slice(0,10)}.csv`;
+    mime     = 'text/csv';
+  }
+
+  const blob = new Blob([content], { type: mime });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${incidents.length} incident${incidents.length !== 1 ? 's' : ''} as ${format.toUpperCase()}.`);
+  closeModal('modal-export');
+}
+
+// ── Plate search ──────────────────────────────────────────────────
+
+async function runPlateSearch() {
+  const stateKey = document.getElementById('plate-search-state')?.value;
+  const plateNum = document.getElementById('plate-search-number')?.value.trim().toUpperCase();
+  const resultsEl = document.getElementById('plate-search-results');
+  if (!stateKey || !plateNum) {
+    resultsEl.innerHTML = '<div class="widget-empty">Select a state and enter a plate number.</div>';
+    return;
+  }
+
+  resultsEl.innerHTML = '<div class="widget-empty">Searching…</div>';
+
+  // Search own + external incidents locally first
+  const normPlate = plateNum.replace(/\s+/g, '').toUpperCase();
+  const seen = new Set();
+  const localMatches = [...state.incidents, ...(state.externalIncidents || [])]
+    .filter(i => {
+      if (seen.has(i.id)) return false;
+      seen.add(i.id);
+      return i.plateState === stateKey &&
+        (i.plateNumber || '').replace(/\s+/g, '').toUpperCase() === normPlate;
+    })
+    .sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+
+  // Also check worker plate index for public incidents from any user
+  let workerMatches = [];
+  if (state.workerUrl) {
+    try {
+      const base = state.workerUrl.replace(/\/$/, '');
+      const res  = await fetch(`${base}/plates/${encodeURIComponent(stateKey)}/${normPlate}`);
+      if (res.ok) {
+        const data = await res.json();
+        workerMatches = (data.incidents || []).filter(i => !seen.has(i.id));
+      }
+    } catch { /* silent */ }
+  }
+
+  const allMatches = [...localMatches, ...workerMatches]
+    .sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+
+  if (!allMatches.length) {
+    resultsEl.innerHTML = '<div class="widget-empty">No incidents found for that plate.</div>';
+    return;
+  }
+
+  resultsEl.innerHTML = `
+    <div style="font-size:.78rem;color:var(--text3);margin-bottom:.65rem;">${allMatches.length} incident${allMatches.length !== 1 ? 's' : ''} found</div>
+    ${allMatches.map(i => {
+      const sev = getSeverity(i.incidentType);
+      return `<div class="friends-row" style="cursor:pointer;" data-id="${_esc(i.id)}">
+        <div>
+          <span class="severity-pill ${sev}" style="font-size:.72rem;">${sev}</span>
+          <span style="margin-left:.4rem;font-size:.88rem;">${getLabel(i.incidentType)}</span>
+          <div style="font-size:.78rem;color:var(--text3);margin-top:.15rem;">${formatDateTime(i.datetime)}${i.locationName ? ' · ' + i.locationName.split(',')[0] : ''}${i.username ? ' · @' + i.username : ''}</div>
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+
+  // Click result to open drawer
+  resultsEl.querySelectorAll('[data-id]').forEach(row => {
+    row.addEventListener('click', () => {
+      closeModal('modal-plate-search');
+      openDrawer(row.dataset.id);
+    });
+  });
 }
 
 // ── Social / Friends ──────────────────────────────────────────────
@@ -1931,6 +2062,59 @@ document.getElementById('btn-my-incidents')?.addEventListener('click', () => {
 document.getElementById('btn-friends')?.addEventListener('click', openSocialModal);
 document.getElementById('btn-settings')?.addEventListener('click', openSettingsModal);
 
+// Export
+document.getElementById('btn-export')?.addEventListener('click', () => {
+  const countEl = document.getElementById('export-count');
+  if (countEl) countEl.textContent = `${state.incidents.length} incident${state.incidents.length !== 1 ? 's' : ''} will be exported.`;
+  openModal('modal-export');
+});
+document.getElementById('btn-export-json')?.addEventListener('click', () => exportIncidents('json'));
+document.getElementById('btn-export-csv')?.addEventListener('click',  () => exportIncidents('csv'));
+
+// Plate search
+document.getElementById('btn-plate-search')?.addEventListener('click', () => {
+  // Populate state dropdown from platesConfig
+  const sel = document.getElementById('plate-search-state');
+  if (sel && state.platesConfig && sel.options.length <= 1) {
+    sel.innerHTML = '<option value="">State…</option>' +
+      Object.keys(state.platesConfig)
+        .sort()
+        .map(k => `<option value="${k}">${k.replace(/_/g,' ')}</option>`)
+        .join('');
+  }
+  openModal('modal-plate-search');
+});
+document.getElementById('btn-plate-search-go')?.addEventListener('click', runPlateSearch);
+document.getElementById('plate-search-number')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') runPlateSearch();
+});
+
+// Visibility filter
+document.querySelectorAll('.vis-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.visFilter = btn.dataset.vis;
+    document.querySelectorAll('.vis-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderMapPins();
+  });
+});
+
+// Default map location (Set button in settings)
+document.getElementById('btn-set-home')?.addEventListener('click', async () => {
+  const input = document.getElementById('settings-home-location');
+  const query = input?.value.trim();
+  if (!query) return;
+  try {
+    const res  = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`);
+    const data = await res.json();
+    if (!data.length) { showToast('Location not found — try a different search.'); return; }
+    state.homeLocation = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), label: query };
+    saveSettings();
+    if (state.mainMap) state.mainMap.setView([state.homeLocation.lat, state.homeLocation.lng], 12);
+    showToast('Default map location saved.');
+  } catch { showToast('Could not geocode that location.'); }
+});
+
 // ── Drawer buttons ────────────────────────────────────────────────
 
 document.getElementById('btn-drawer-close')?.addEventListener('click', () => {
@@ -1975,6 +2159,26 @@ document.getElementById('incident-plate-number')?.addEventListener('input', () =
   const el  = document.getElementById('incident-plate-number');
   el.value  = el.value.toUpperCase();
   renderPlatePreview();
+  // Repeat offender warning
+  const stateKey = document.getElementById('incident-plate-state')?.value;
+  const plateNum = el.value.trim();
+  const warn     = document.getElementById('repeat-offender-warning');
+  if (warn && stateKey && plateNum.length >= 2) {
+    const count = countPlateIncidents(stateKey, plateNum);
+    if (count > 0) {
+      warn.textContent = `⚠ ${count} prior incident${count !== 1 ? 's' : ''} on record for this plate across all visible users.`;
+      warn.style.display = '';
+    } else {
+      warn.style.display = 'none';
+    }
+  } else if (warn) {
+    warn.style.display = 'none';
+  }
+});
+
+document.getElementById('incident-plate-state')?.addEventListener('change', () => {
+  // Re-trigger repeat offender check when state changes
+  document.getElementById('incident-plate-number')?.dispatchEvent(new Event('input'));
 });
 
 document.getElementById('btn-incident-locate')?.addEventListener('click', () => {
