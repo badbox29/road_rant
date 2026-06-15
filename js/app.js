@@ -769,6 +769,7 @@ function initMainMap() {
   // Marker cluster
   state.markerCluster = L.markerClusterGroup({
     maxClusterRadius: 40,
+    showCoverageOnHover: false,
     iconCreateFunction: (cluster) => {
       const children   = cluster.getAllChildMarkers();
       const severities = [...new Set(children.map(m => m.options.severity).filter(Boolean))];
