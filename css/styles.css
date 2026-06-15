@@ -147,7 +147,7 @@ h1, h2, h3 { font-family: var(--font-display); letter-spacing: .04em; color: var
   gap: .45rem;
   user-select: none;
 }
-.brand-icon { font-size: 1.2rem; }
+.brand-icon { width: 28px; height: 28px; object-fit: contain; display: inline-block; }
 .brand-name {
   font-family: var(--font-display);
   font-size: 1.55rem;
