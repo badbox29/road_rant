@@ -887,6 +887,23 @@ select.input { cursor: pointer; appearance: none;
 .rr-pin.moderate { background: var(--moderate); }
 .rr-pin.minor    { background: var(--minor); }
 
+/* Marker clusters */
+.rr-cluster {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2.5px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .78rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.5);
+  box-shadow: 0 2px 6px rgba(0,0,0,.45);
+  filter: brightness(.88);  /* darken slightly so border reads as rim */
+}
+
 /* Chalk-line mode pin states */
 .rr-pin.chalk-highlight { background: var(--chalk-active) !important; box-shadow: 0 0 10px rgba(224,40,44,.7); transform: rotate(-45deg) scale(1.2); }
 .rr-pin.chalk-muted     { background: var(--chalk-muted) !important; opacity: .35; }
