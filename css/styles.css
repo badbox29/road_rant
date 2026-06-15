@@ -329,7 +329,7 @@ select.input { cursor: pointer; appearance: none;
 /* ── Chalk-line banner ──────────────────────────────────────────── */
 .chalk-banner {
   position: absolute;
-  top: .75rem;
+  bottom: .75rem;
   left: 50%;
   transform: translateX(-50%);
   background: var(--accent);
