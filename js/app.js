@@ -144,6 +144,16 @@ function showToast(msg, duration = 2800) {
   setTimeout(() => t.classList.remove('show'), duration);
 }
 
+function severityColor(sev) {
+  const map = {
+    critical: 'var(--critical, #e0282c)',
+    serious:  'var(--serious,  #f97316)',
+    moderate: 'var(--moderate, #eab308)',
+    minor:    'var(--minor,    #22c55e)',
+  };
+  return map[sev] || '#94a3b8';
+}
+
 function getSeverity(incidentType) {
   return SEVERITY_TIERS[incidentType] || 'moderate';
 }
@@ -760,11 +770,16 @@ function initMainMap() {
   state.markerCluster = L.markerClusterGroup({
     maxClusterRadius: 40,
     iconCreateFunction: (cluster) => {
+      const children   = cluster.getAllChildMarkers();
+      const severities = [...new Set(children.map(m => m.options.severity).filter(Boolean))];
+      // Single severity → use that color; mixed → neutral slate
+      const color = severities.length === 1 ? severityColor(severities[0]) : '#94a3b8';
+      const count = cluster.getChildCount();
       return L.divIcon({
-        html: `<div class="rr-cluster">${cluster.getChildCount()}</div>`,
+        html: `<div class="rr-cluster" style="background:${color};border-color:${color};">${count}</div>`,
         className: '',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
+        iconSize:   [34, 34],
+        iconAnchor: [17, 17],
       });
     },
   });
@@ -865,7 +880,7 @@ function renderMapPins() {
   allIncidents.forEach(inc => {
     if (!inc.lat || !inc.lng) return;
     const sev    = getSeverity(inc.incidentType);
-    const marker = L.marker([inc.lat, inc.lng], { icon: makePinIcon(sev) });
+    const marker = L.marker([inc.lat, inc.lng], { icon: makePinIcon(sev), severity: sev });
     marker.on('click', (e) => {
       L.DomEvent.stopPropagation(e);
       openDrawer(inc.id);
