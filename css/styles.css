@@ -718,6 +718,75 @@ select.input { cursor: pointer; appearance: none;
 .friends-notif-time { font-size: .72rem; color: var(--text3); margin-top: .2rem; }
 .friends-requests-section { margin-bottom: 1rem; }
 .brand-version { font-size: .65rem; color: var(--text3); opacity: .6; margin-left: .3rem; align-self: flex-end; padding-bottom: .1rem; letter-spacing: .02em; }
+
+/* ── Sync status chip ───────────────────────────────────────────── */
+/* An expired credential and a dropped connection need different
+   reactions from the user, so they must not look alike. Transient
+   states are muted; auth failure is loud, persistent, and clickable. */
+.sync-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  margin-left: .6rem;
+  padding: .18rem .5rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .01em;
+  line-height: 1.3;
+  white-space: nowrap;
+  align-self: center;
+  user-select: none;
+}
+.sync-chip[hidden] { display: none; }
+
+.sync-chip::before {
+  content: '';
+  width: .42rem;
+  height: .42rem;
+  border-radius: 50%;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+
+/* Transient — resolves on its own, no action needed. */
+.sync-chip.is-offline {
+  color: var(--moderate, #eab308);
+  background: color-mix(in srgb, var(--moderate, #eab308) 12%, transparent);
+  border-color: color-mix(in srgb, var(--moderate, #eab308) 30%, transparent);
+}
+.sync-chip.is-error {
+  color: var(--text3, #94a3b8);
+  background: color-mix(in srgb, var(--text3, #94a3b8) 12%, transparent);
+  border-color: color-mix(in srgb, var(--text3, #94a3b8) 26%, transparent);
+}
+
+/* Terminal — nothing syncs until the user acts. Pulses so it can't be
+   mistaken for the ambient "retrying" state. */
+.sync-chip.is-auth {
+  color: var(--critical, #e0282c);
+  background: color-mix(in srgb, var(--critical, #e0282c) 14%, transparent);
+  border-color: color-mix(in srgb, var(--critical, #e0282c) 45%, transparent);
+  animation: sync-chip-pulse 2.4s ease-in-out infinite;
+}
+.sync-chip.is-auth:hover {
+  background: color-mix(in srgb, var(--critical, #e0282c) 22%, transparent);
+}
+
+@keyframes sync-chip-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .62; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sync-chip.is-auth { animation: none; }
+}
+
+@media (max-width: 640px) {
+  .sync-chip { margin-left: .4rem; font-size: .62rem; padding: .14rem .4rem; }
+}
+
 .drawer-feed-nav { display:flex; align-items:center; justify-content:space-between; padding:.4rem .75rem; border-bottom:1px solid var(--border); background:var(--surface2); gap:.25rem; }
 .drawer-feed-nav .btn { flex:1; justify-content:center; font-size:.78rem; }
 
