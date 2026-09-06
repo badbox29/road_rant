@@ -61,6 +61,12 @@ const state = {
   notifications:      [],
   externalIncidents:  [],
 
+  // Sync tracking
+  lastModified: 0,        // ms epoch of last local change
+  syncDirty:    false,    // true when local changes haven't been pushed
+  syncStatus:   'ok',     // ok | offline | error | auth
+  authFailed:   false,    // terminal auth failure — stop retrying
+
   // Data
   incidents:    [],
   pageSize:     20,
@@ -183,6 +189,9 @@ function loadSettings() {
   const rawFriends = g('friends');
   state.friends = rawFriends ? JSON.parse(rawFriends) : [];
 
+  state.lastModified = parseInt(g('last_modified') || '0', 10) || 0;
+  state.syncDirty    = g('sync_dirty') === 'true';
+
   // Legacy: existing token with no authMethod → infer token
   if (!state.authMethod && state.token) {
     state.authMethod = 'token';
@@ -211,6 +220,30 @@ function saveSettings() {
   s('linked_google', state.linkedGoogle ? JSON.stringify(state.linkedGoogle) : null);
   s('created_at',   state.createdAt);
   s('friends',      state.friends.length ? JSON.stringify(state.friends) : null);
+  persistSyncMeta();
+}
+
+// ── Sync metadata ─────────────────────────────────────────────────
+// lastModified + syncDirty are what stop a stale server copy from
+// overwriting newer local data on re-authentication. Without them,
+// re-auth applies remote unconditionally and then pushes it back up.
+
+function persistSyncMeta() {
+  localStorage.setItem(STORAGE_PREFIX + 'last_modified', String(state.lastModified || 0));
+  localStorage.setItem(STORAGE_PREFIX + 'sync_dirty',    state.syncDirty ? 'true' : 'false');
+}
+
+// touchLocal() — record that local data changed and is ahead of the server.
+function touchLocal() {
+  state.lastModified = Date.now();
+  state.syncDirty    = true;
+  persistSyncMeta();
+}
+
+// clearDirty() — called only after the server confirms a write.
+function clearDirty() {
+  state.syncDirty = false;
+  persistSyncMeta();
 }
 
 // ── Local incident storage ────────────────────────────────────────
@@ -220,32 +253,146 @@ function loadIncidents() {
   state.incidents = raw ? JSON.parse(raw) : [];
 }
 
-function saveIncidents() {
+// persistIncidents() — write to localStorage WITHOUT marking dirty.
+// Used when the change came from the server, not from the user.
+function persistIncidents() {
   localStorage.setItem(STORAGE_PREFIX + 'incidents', JSON.stringify(state.incidents));
+}
+
+// saveIncidents() — a local edit. Marks the account dirty so a stale
+// remote copy can't overwrite it on the next sign-in.
+function saveIncidents() {
+  persistIncidents();
+  touchLocal();
+}
+
+// ── Sync status ───────────────────────────────────────────────────
+// An expired credential and a dropped connection are different problems
+// with different fixes, so they must not look the same. Auth failure gets
+// its own persistent, non-dismissible treatment — a connection blip does
+// not, because it resolves on its own.
+
+const SYNC_STATUS = {
+  ok:      { text: '',                                cls: ''           },
+  offline: { text: 'Offline · saved on this device',  cls: 'is-offline' },
+  error:   { text: 'Sync problem · retrying',         cls: 'is-error'   },
+  auth:    { text: 'Signed out · not syncing',        cls: 'is-auth'    },
+};
+
+function setSyncStatus(kind, detail) {
+  state.syncStatus = kind;
+  state.authFailed = (kind === 'auth');
+
+  const el = document.getElementById('sync-chip');
+  if (!el) return;
+
+  if (kind === 'ok') {
+    el.hidden      = true;
+    el.className   = 'sync-chip';
+    el.textContent = '';
+    el.onclick     = null;
+    return;
+  }
+
+  const cfg = SYNC_STATUS[kind] || SYNC_STATUS.error;
+  el.hidden      = false;
+  el.className   = `sync-chip ${cfg.cls}`;
+  el.textContent = detail || cfg.text;
+
+  // Auth failure is actionable for Google accounts — make the chip the way back in.
+  if (kind === 'auth' && state.authMethod === 'google') {
+    el.onclick     = () => Auth.refreshGoogleSession();
+    el.style.cursor = 'pointer';
+    el.title        = 'Sign in again';
+  } else {
+    el.onclick      = null;
+    el.style.cursor = 'default';
+    el.title        = '';
+  }
 }
 
 // ── Worker API ────────────────────────────────────────────────────
 
-async function workerFetch(path, method = 'GET', body = null) {
+// SyncAuthError — a credential problem, not a connectivity problem.
+// Terminal: the same request will fail identically until the user re-auths,
+// so callers must stop retrying rather than hammering a dead token.
+class SyncAuthError extends Error {
+  constructor(msg) {
+    super(msg);
+    this.name        = 'SyncAuthError';
+    this.authFailure = true;
+  }
+}
+
+async function workerFetch(path, method = 'GET', body = null, opts = {}) {
   if (!state.workerUrl) throw new Error('Worker URL not configured');
   if (Auth.isGuest()) throw new Error('Guest accounts cannot sync');
+
   const url     = state.workerUrl.replace(/\/$/, '') + path;
   const bodyStr = body !== null ? JSON.stringify(body) : null;
-  let authHeaders = {};
-  try { authHeaders = await Auth._authHeaders(method, state.token, bodyStr); } catch {}
-  const opts = { method, headers: { 'Content-Type': 'application/json', ...authHeaders } };
-  if (bodyStr !== null) opts.body = bodyStr;
-  const res = await fetch(url, opts);
-  if (!res.ok) {
-    const e = await res.json().catch(() => ({}));
-    // Google session expired — trigger re-auth and abort current operation
-    if (res.status === 401 && state.authMethod === 'google') {
-      Auth.refreshGoogleSession();
-      throw new Error('Session expired — please sign in again.');
+
+  // Google ID tokens die after an hour. Refresh before spending a request on
+  // one that's about to expire, so the write isn't lost to a 401 in flight.
+  if (state.authMethod === 'google' && Auth.isTokenExpired(30000)) {
+    const refreshed = await Auth.ensureFreshSession();
+    if (!refreshed) {
+      setSyncStatus('auth');
+      throw new SyncAuthError('Signed out — sign in again to resume syncing.');
     }
-    throw new Error(e.error || `HTTP ${res.status}`);
   }
-  return res.json();
+
+  // Fail closed. The worker requires auth on every KV route with no bypass,
+  // so sending an unsigned request just burns a guaranteed 401 and leaves the
+  // user with no idea why nothing syncs.
+  const authHeaders = await Auth._authHeaders(method, state.token, bodyStr);
+  if (!authHeaders) {
+    const why = state.authMethod === 'google'
+      ? 'Signed out — sign in again to resume syncing.'
+      : 'This browser can’t sign requests securely, so syncing is unavailable.';
+    setSyncStatus('auth', state.authMethod === 'google' ? null : 'Can’t sign requests · not syncing');
+    throw new SyncAuthError(why);
+  }
+
+  const reqOpts = { method, headers: { 'Content-Type': 'application/json', ...authHeaders } };
+  if (bodyStr !== null) reqOpts.body = bodyStr;
+
+  let res;
+  try {
+    res = await fetch(url, reqOpts);
+  } catch (err) {
+    // Genuine network failure — transient. Keep retrying on the sync ping.
+    setSyncStatus('offline');
+    throw err;
+  }
+
+  if (res.ok) {
+    setSyncStatus('ok');
+    return res.json();
+  }
+
+  const e = await res.json().catch(() => ({}));
+
+  // Stale write — the stored copy is newer. Caller merges and retries once.
+  if (res.status === 409) {
+    const err = new Error(e.error || 'Stored copy is newer');
+    err.conflict    = true;
+    err.storedAt    = e.storedAt;
+    err.submittedAt = e.submittedAt;
+    throw err;
+  }
+
+  if (res.status === 401 || res.status === 403) {
+    // Terminal. Try exactly one recovery pass for Google accounts, then stop.
+    if (!opts._retriedAuth && state.authMethod === 'google') {
+      const refreshed = await Auth.ensureFreshSession();
+      if (refreshed) return workerFetch(path, method, body, { ...opts, _retriedAuth: true });
+    }
+    setSyncStatus('auth');
+    throw new SyncAuthError(e.error || 'Signed out — sign in again to resume syncing.');
+  }
+
+  setSyncStatus('error');
+  throw new Error(e.error || `HTTP ${res.status}`);
 }
 
 async function kvGet(key) {
@@ -254,7 +401,47 @@ async function kvGet(key) {
 }
 
 async function kvPut(key, value) {
-  await workerFetch(`/storage/${state.token}/${key}`, 'PUT', value);
+  try {
+    await workerFetch(`/storage/${state.token}/${key}`, 'PUT', value);
+  } catch (err) {
+    if (!err.conflict) throw err;
+    // The worker refused because its copy is newer. Pull it, merge, retry once.
+    // A second 409 means something else is wrong — let it surface.
+    console.warn(`[Worker] 409 on ${key} — stored ${err.storedAt} > submitted ${err.submittedAt}; merging`);
+    const merged = await mergeOnConflict(key, value);
+    await workerFetch(`/storage/${state.token}/${key}`, 'PUT', merged);
+  }
+}
+
+// mergeOnConflict() — reconcile a rejected write against the stored copy.
+// Incidents merge per-id by recency; the profile merges field-wise with
+// local values winning where they're actually set.
+async function mergeOnConflict(key, local) {
+  let remote = null;
+  try { remote = await kvGet(key); } catch { /* fall through to local */ }
+  if (!remote) return local;
+
+  if (key === 'incidents' && Array.isArray(remote) && Array.isArray(local)) {
+    const byId = new Map(remote.map(i => [i.id, i]));
+    for (const inc of local) {
+      const r = byId.get(inc.id);
+      if (!r || (inc.updatedAt || 0) >= (r.updatedAt || 0)) byId.set(inc.id, inc);
+    }
+    state.incidents = [...byId.values()];
+    persistIncidents();
+    return state.incidents;
+  }
+
+  const localFields = Object.fromEntries(
+    Object.entries(local).filter(([, v]) =>
+      v != null && !(Array.isArray(v) && v.length === 0))
+  );
+  const merged = { ...remote, ...localFields };
+  // Fresh stamp so the retry supersedes both copies rather than 409ing again.
+  merged.lastModified = Date.now();
+  state.lastModified  = merged.lastModified;
+  persistSyncMeta();
+  return merged;
 }
 
 async function pushIncidentsToWorker() {
@@ -267,10 +454,12 @@ async function pushIncidentsToWorker() {
         await updatePlateIndex(inc, false);
       }
     }
+    clearDirty();          // server has confirmed the write
     return true;
   } catch (e) {
-    console.warn('[Worker] push failed:', e.message);
-    return false;
+    if (e.authFailure) console.warn('[Worker] push blocked — not authenticated:', e.message);
+    else               console.warn('[Worker] push failed:', e.message);
+    return false;          // stays dirty; the sync ping will retry
   }
 }
 
@@ -283,12 +472,17 @@ async function pullIncidentsFromWorker() {
       const remoteIds = new Set(remote.map(i => i.id));
       const localOnly = state.incidents.filter(i => !remoteIds.has(i.id));
       state.incidents = [...remote, ...localOnly];
-      saveIncidents();
+      persistIncidents();
+      // Only dirty if this device still holds something the server doesn't.
+      // A clean pull must not look like a local edit, or every sync would
+      // leave the account permanently dirty and block remote from ever winning.
+      if (localOnly.length) touchLocal();
     }
     // Pull public + friends feed after own incidents
     await pullFeedFromWorker();
   } catch (e) {
-    console.warn('[Worker] pull failed:', e.message);
+    if (e.authFailure) console.warn('[Worker] pull blocked — not authenticated:', e.message);
+    else               console.warn('[Worker] pull failed:', e.message);
   }
 }
 
@@ -301,12 +495,15 @@ async function pullFeedFromWorker() {
     const pubIncidents = pubRes.ok ? await pubRes.json() : [];
 
     // Pull friends feed — auth required
-    const authHdrs = await Auth._authHeaders('GET', state.token, null).catch(() => ({}));
-    const friendsRes = await fetch(
+    const authHdrs = await Auth._authHeaders('GET', state.token, null);
+    // Fail closed — an unsigned request is a guaranteed 401. Public feed
+    // above still loaded, so show what we have rather than sending it.
+    if (!authHdrs) setSyncStatus('auth');
+    const friendsRes = authHdrs ? await fetch(
       `${base}/feed/friends/${encodeURIComponent(state.token)}`,
       { headers: { 'Content-Type': 'application/json', ...authHdrs } }
-    );
-    const friendsIncidents = friendsRes.ok ? await friendsRes.json() : [];
+    ) : null;
+    const friendsIncidents = friendsRes?.ok ? await friendsRes.json() : [];
 
     // Merge external incidents — exclude own (already in state.incidents)
     const ownToken = state.token;
@@ -358,6 +555,11 @@ async function saveProfileToKV() {
   }
 
   if (!state.token) return false;
+
+  // Every push carries a timestamp. The worker uses it to reject stale
+  // writes, and re-authentication uses it to decide whether a stored copy
+  // is allowed to overwrite what's on this device.
+  const stamp = Math.max(state.lastModified || 0, Date.now());
   try {
     const profile = {
       userName:     state.userName,
@@ -370,19 +572,25 @@ async function saveProfileToKV() {
       friends:      state.friends,
       incomingReqs: state.incomingReqs,
       outgoingReqs: state.outgoingReqs,
+      lastModified: stamp,
     };
     await kvPut('profile', profile);
+    state.lastModified = stamp;
+    clearDirty();          // server has confirmed the write
     return true;
   } catch (e) {
-    console.warn('[Profile KV] save failed:', e.message);
-    return false;
+    if (e.authFailure) console.warn('[Profile KV] save blocked — not authenticated:', e.message);
+    else               console.warn('[Profile KV] save failed:', e.message);
+    return false;          // stays dirty; the sync ping will retry
   }
 }
 
 async function loadProfileFromKV() {
   if (!state.workerUrl || !state.token || Auth.isGuest()) return;
   try {
-    const authHeaders = await Auth._authHeaders('GET', state.token, null).catch(() => ({}));
+    const authHeaders = await Auth._authHeaders('GET', state.token, null).catch(() => null);
+    // Fail closed — an unsigned GET is a guaranteed 401.
+    if (!authHeaders) { setSyncStatus('auth'); return; }
     const res = await fetch(
       `${state.workerUrl.replace(/\/$/, '')}/storage/${state.token}/profile`,
       { headers: { 'Content-Type': 'application/json', ...authHeaders } }
@@ -396,10 +604,31 @@ async function loadProfileFromKV() {
       return;
     }
     if (res.status === 410) { Auth.showAccountSetup(); return; }
+    if (res.status === 401 || res.status === 403) { setSyncStatus('auth'); return; }
     if (!res.ok) return;
     const json    = await res.json();
     const profile = json.value;
     if (!profile) return;
+
+    // Same trap as re-authentication: applying remote unconditionally lets a
+    // stale server copy overwrite newer local data, which then gets pushed
+    // back up. Only accept remote when it is demonstrably newer and we have
+    // nothing unsynced. Otherwise keep local — the next push will win.
+    const remoteTs = Number(profile.lastModified || 0);
+    const localTs  = Number(state.lastModified   || 0);
+    if (state.syncDirty || remoteTs <= localTs) {
+      // Nothing older than a legacy profile with no timestamp at all should
+      // block a first-ever sync, so allow it through when we have no local
+      // history either.
+      if (!(remoteTs === 0 && localTs === 0)) {
+        console.info('[Profile KV] keeping local profile (dirty=%s local=%s remote=%s)',
+                     state.syncDirty, localTs, remoteTs);
+        setSyncStatus('ok');
+        return;
+      }
+    }
+    if (remoteTs) state.lastModified = remoteTs;
+
     if (profile.userName)     state.userName     = profile.userName;
     if (profile.username)     state.username     = profile.username;
     if (profile.pageSize)     state.pageSize     = profile.pageSize;
@@ -1385,10 +1614,10 @@ async function saveIncident() {
   if (state.editingId) {
     const idx = state.incidents.findIndex(i => i.id === state.editingId);
     if (idx !== -1) {
-      state.incidents[idx] = { ...state.incidents[idx], ...data };
+      state.incidents[idx] = { ...state.incidents[idx], ...data, updatedAt: Date.now() };
     }
   } else {
-    state.incidents.unshift({ id: uid(), ...data, token: state.token || null, username: state.username || null, createdAt: new Date().toISOString() });
+    state.incidents.unshift({ id: uid(), ...data, token: state.token || null, username: state.username || null, createdAt: new Date().toISOString(), updatedAt: Date.now() });
   }
 
   const savedTags  = [...(window._incidentTags || [])];
@@ -1417,7 +1646,8 @@ async function saveIncident() {
           fromToken:    state.token,
           preview:      `${state.username} tagged you in a ${getLabel(data.incidentType || '')} incident.`,
         });
-        const authHdrs = await Auth._authHeaders('POST', state.token, body).catch(() => ({}));
+        const authHdrs = await Auth._authHeaders('POST', state.token, body);
+        if (!authHdrs) throw new Error('cannot sign notification');
         await fetch(`${base}/notify/${encodeURIComponent(friend.token)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...authHdrs },
@@ -1859,7 +2089,8 @@ async function sendFriendRequest(targetUsername, targetToken) {
       fromToken:    state.token,
       preview:      `${state.username || 'Someone'} wants to be your friend on Road Rant.`,
     });
-    const authHdrs = await Auth._authHeaders('POST', state.token, body).catch(() => ({}));
+    const authHdrs = await Auth._authHeaders('POST', state.token, body);
+    if (!authHdrs) throw new Error('cannot sign notification');
     await fetch(`${base}/notify/${encodeURIComponent(targetToken)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...authHdrs },
@@ -1889,7 +2120,8 @@ async function acceptFriendRequest(fromUsername, fromToken) {
       fromToken:    state.token,
       preview:      `${state.username || 'Someone'} accepted your friend request.`,
     });
-    const authHdrs = await Auth._authHeaders('POST', state.token, body).catch(() => ({}));
+    const authHdrs = await Auth._authHeaders('POST', state.token, body);
+    if (!authHdrs) throw new Error('cannot sign notification');
     await fetch(`${base}/notify/${encodeURIComponent(fromToken)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...authHdrs },
@@ -2407,6 +2639,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       linkedGoogle: state.linkedGoogle,
       createdAt:    state.createdAt,
       userName:     state.userName,    // pre-populates name field in account setup wizard
+      username:     state.username,
+      // Sync tracking — Auth uses these to decide whether a stored remote
+      // copy is allowed to overwrite what's on this device.
+      lastModified: state.lastModified,
+      syncDirty:    state.syncDirty,
     }),
     setData: (d) => {
       if (d.userToken) state.token = d.userToken; // only overwrite if non-null
@@ -2415,6 +2652,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (d.linkedGoogle !== undefined) state.linkedGoogle = d.linkedGoogle;
       if (d.createdAt    !== undefined) state.createdAt    = d.createdAt;
       if (d.userName     !== undefined) state.userName     = d.userName;
+      if (d.username     !== undefined) state.username     = d.username;
+      if (d.lastModified !== undefined) state.lastModified = d.lastModified;
+      if (d.syncDirty    !== undefined) state.syncDirty    = d.syncDirty;
       saveSettings();
     },
     mergeData: (raw) => ({
@@ -2425,8 +2665,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       createdAt:    raw.createdAt    ?? Date.now(),
       userName:     raw.userName     ?? state.userName  ?? null,
       username:     raw.username     ?? state.username  ?? null,
+      lastModified: raw.lastModified ?? 0,
+      syncDirty:    false,
     }),
-    onSignedIn: async (data, isNewAccount) => {
+    onSignedIn: async (data, isNewAccount, opts = {}) => {
       // data.userToken may be null for token accounts — the token was generated
       // inside saveProfileToKV (pushToWorker) and already saved to state/localStorage.
       // Only overwrite state.token if auth is explicitly providing one.
@@ -2437,8 +2679,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (data.createdAt    !== undefined) state.createdAt    = data.createdAt;
       if (data.userName     !== undefined) state.userName     = data.userName;
       if (data.username     !== undefined) state.username     = data.username;
+      if (data.lastModified !== undefined) state.lastModified = data.lastModified;
+      if (data.syncDirty    !== undefined) state.syncDirty    = data.syncDirty;
       saveSettings();
-      if (!isNewAccount) {
+      // opts.keepLocal means Auth decided local data is newer than the stored
+      // copy. Re-pulling the profile here would undo that decision and hand
+      // the stale copy the win after all.
+      if (!isNewAccount && !opts.keepLocal) {
         await loadProfileFromKV();
         await pullIncidentsFromWorker();
         applyDarkMode();
@@ -2502,14 +2749,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderMobileFeed();
   updateFriendsBadge();
 
-  // Periodic sync every 2 minutes — pulls own incidents + public/friends feed
+  // Periodic sync — pulls own incidents + public/friends feed, and retries
+  // any local changes that failed to push.
   setInterval(async () => {
-    if (state.workerUrl && !Auth.isGuest()) {
-      await pullIncidentsFromWorker(); // also calls pullFeedFromWorker internally
-      renderMapPins();
-      renderMobileFeed();
-      renderFeed();
-      updateFriendsBadge();
+    if (!state.workerUrl || Auth.isGuest()) return;
+
+    // A terminal auth failure means every retry sends the same dead
+    // credential and learns nothing. Stop until the user signs back in;
+    // the status chip is showing them how.
+    if (state.authFailed) return;
+
+    // Flush anything that didn't make it up earlier.
+    if (state.syncDirty) {
+      await pushIncidentsToWorker().catch(() => {});
+      await saveProfileToKV().catch(() => {});
     }
+
+    await pullIncidentsFromWorker(); // also calls pullFeedFromWorker internally
+    renderMapPins();
+    renderMobileFeed();
+    renderFeed();
+    updateFriendsBadge();
   }, 60000);
 });

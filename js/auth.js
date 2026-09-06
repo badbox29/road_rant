@@ -86,7 +86,14 @@
  *   getData           function — returns the current app data object
  *   setData           function — (data) sets and persists app data
  *   mergeData         function — (raw) merges raw KV JSON with app defaults, returns object
- *   onSignedIn        function — (data, isNewAccount) called after successful sign-in
+ *   onSignedIn        function — (data, isNewAccount, opts) called after successful sign-in.
+ *                     opts.keepLocal is true when re-auth kept newer local data —
+ *                     the host MUST NOT re-pull the remote profile in that case.
+ *
+ * getData() must also expose two sync-tracking fields, used to decide whether
+ * a remote copy may overwrite local data on re-authentication:
+ *   lastModified      number  — ms epoch of the last local change
+ *   syncDirty         boolean — true when local changes have not been pushed
  *   onGuestReady      function — (data) called when guest continues without account
  *   onSessionExpired  function — called when Google session expires at boot
  *   pushToWorker      function — pushes current data to worker, returns Promise<bool>
@@ -161,12 +168,152 @@ const Auth = (() => {
   // for a worker request based on current account type.
   //   Google → Authorization: Bearer <idToken>
   //   Token  → X-Timestamp + X-Signature (HMAC)
+  //
+  // FAILS CLOSED. Returns null when headers cannot be produced — either
+  // there's no stored Google credential, or crypto.subtle is unavailable
+  // (insecure context, old WebView) and signing threw. The worker requires
+  // auth on every KV route with no bypass flag, so an unsigned request is a
+  // guaranteed 401. Returning {} here would send it anyway and leave the
+  // device in permanent silent sync failure. Callers MUST check for null
+  // and surface it in the UI.
   async function _authHeaders(method, token, body) {
     if(isGoogleAccount()) {
       const idToken = store.get(C.storageAuthKey);
-      return idToken ? { 'Authorization': `Bearer ${idToken}` } : {};
+      return idToken ? { 'Authorization': `Bearer ${idToken}` } : null;
     }
-    try { return await _signRequest(method, token, body); } catch { return {}; }
+    try {
+      return await _signRequest(method, token, body);
+    } catch(err) {
+      console.error('[Auth] request signing unavailable — cannot authenticate:', err);
+      return null;
+    }
+  }
+
+  // ── Google ID token lifetime ─────────────────────────────────────
+  // Google ID tokens expire one hour after issue. Nothing in GIS tells us
+  // when that happens, so we read `exp` out of the JWT ourselves and
+  // schedule a refresh ahead of it. Without this, the first request after
+  // the hour mark 401s and whatever it was carrying is lost.
+
+  let _refreshTimer    = null;
+  let _refreshInFlight = null;
+
+  const REFRESH_LEAD_MS   = 5 * 60 * 1000; // refresh this far ahead of exp
+  const SILENT_TIMEOUT_MS = 8000;          // hard cap on the silent attempt
+
+  // _jwtExp() — reads exp (ms epoch) from an ID token. 0 if unreadable.
+  // Read-only parse for scheduling; the worker still verifies signatures.
+  function _jwtExp(idToken) {
+    try {
+      const payload = JSON.parse(
+        atob(String(idToken).split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))
+      );
+      return typeof payload.exp === 'number' ? payload.exp * 1000 : 0;
+    } catch { return 0; }
+  }
+
+  // tokenExpiresAt() — ms epoch expiry of the stored credential, 0 if none.
+  function tokenExpiresAt() {
+    const t = store.get(C.storageAuthKey);
+    return t ? _jwtExp(t) : 0;
+  }
+
+  // isTokenExpired(skewMs) — true if the credential is gone, unreadable,
+  // or will expire within skewMs. Callers pass a small skew so a request
+  // isn't sent with a token that dies mid-flight.
+  function isTokenExpired(skewMs = 0) {
+    if(!isGoogleAccount()) return false;
+    const exp = tokenExpiresAt();
+    return !exp || Date.now() + skewMs >= exp;
+  }
+
+  function _clearTokenRefresh() {
+    if(_refreshTimer) { clearTimeout(_refreshTimer); _refreshTimer = null; }
+  }
+
+  // _scheduleTokenRefresh() — arms a timer REFRESH_LEAD_MS before expiry.
+  function _scheduleTokenRefresh(idToken) {
+    _clearTokenRefresh();
+    const exp = _jwtExp(idToken);
+    if(!exp) return;
+    const delay = Math.max(0, exp - Date.now() - REFRESH_LEAD_MS);
+    _refreshTimer = setTimeout(() => { ensureFreshSession(); }, delay);
+  }
+
+  // _silentRefresh() — attempts a no-UI credential refresh through One Tap
+  // with auto_select. Resolves false on any suppression, dismissal, or if
+  // GIS simply never answers, so a wedged prompt can't stall a write.
+  // Only swaps the stored credential — identity and data are untouched.
+  function _silentRefresh() {
+    return new Promise(resolve => {
+      if(!isGoogleAuthAvailable() || !window.google?.accounts?.id) return resolve(false);
+      let settled = false;
+      const finish = (ok) => {
+        if(settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(ok);
+      };
+      const timer = setTimeout(() => {
+        try { google.accounts.id.cancel(); } catch {}
+        finish(false);
+      }, SILENT_TIMEOUT_MS);
+
+      try {
+        google.accounts.id.initialize({
+          client_id:   C.googleClientId,
+          auto_select: true,
+          hint:        getData()?.linkedGoogle?.email || undefined,
+          callback: (response) => {
+            try { google.accounts.id.cancel(); } catch {}
+            if(!response?.credential) return finish(false);
+            store.set(C.storageAuthKey, response.credential);
+            _scheduleTokenRefresh(response.credential);
+            finish(true);
+          },
+        });
+        google.accounts.id.prompt(notification => {
+          if(notification?.isNotDisplayed?.()   ||
+             notification?.isSkippedMoment?.()  ||
+             notification?.isDismissedMoment?.()) finish(false);
+        });
+      } catch { finish(false); }
+    });
+  }
+
+  // ensureFreshSession() — guarantees a usable credential, or falls back to
+  // an interactive prompt. Called from the refresh timer and before any
+  // request whose credential is close to expiry.
+  //
+  // The prompt fires while the OLD token may still be valid, so in-flight
+  // writes have a chance to land rather than dying on a hard 401.
+  // Concurrent callers share one attempt.
+  //
+  // Returns true if a usable credential is in place, false if the user
+  // now needs to interact with the re-auth screen.
+  async function ensureFreshSession() {
+    if(!isGoogleAccount()) return true;
+    if(_refreshInFlight) return _refreshInFlight;
+
+    const exp = tokenExpiresAt();
+    if(exp && Date.now() + REFRESH_LEAD_MS < exp) {
+      _scheduleTokenRefresh(store.get(C.storageAuthKey));
+      return true;
+    }
+
+    _refreshInFlight = (async () => {
+      try {
+        await waitForGIS();
+        if(await _silentRefresh()) return true;
+        console.warn('[Auth] silent refresh unavailable — prompting for re-auth');
+        refreshGoogleSession();
+        return false;
+      } finally {
+        _refreshInFlight = null;
+      }
+    })();
+
+    return _refreshInFlight;
   }
 
   // ── Token generation ─────────────────────────────────────────────
@@ -288,31 +435,62 @@ const Auth = (() => {
       }
     } catch { /* new account — remote stays null */ }
 
-    const isNewAccount = !remote;
+    // Store the credential before anything else — the push below needs it,
+    // and so does any header built during onSignedIn().
+    store.set(C.storageAuthKey, idToken);
+    _scheduleTokenRefresh(idToken);
 
     if(remote) {
-      // Existing Google account — merge with defaults and apply
-      const merged = C.mergeData(remote);
-      merged.userToken    = kvKey;          // never stored in profile — must set explicitly
-      merged.workerUrl    = oldWorkerUrl || merged.workerUrl;
-      merged.authMethod   = 'google';
-      merged.linkedGoogle = profile;
-      C.onSignedIn(merged, false);
-    } else {
-      // New Google account — update current data in place
-      const d = getData();
-      d.authMethod   = 'google';
-      d.linkedGoogle = profile;
-      d.userToken    = kvKey; // kvKey is "google:<sub>" — stable permanent ID
-      d.workerUrl    = oldWorkerUrl;
-      C.setData(d);
-      C.onSignedIn(d, true);
+      // This function runs for BOTH first sign-in and re-authentication on a
+      // device that already holds newer data. Applying remote unconditionally
+      // overwrites local with a stale server copy, and the push that follows
+      // sends that stale copy back up — destroying the data on both sides.
+      // Only let remote win when it is demonstrably newer AND we have nothing
+      // unsynced locally.
+      const d        = getData();
+      const localTs  = Number(d?.lastModified   || 0);
+      const remoteTs = Number(remote.lastModified || 0);
+      const dirty    = !!d?.syncDirty;
+
+      if(!dirty && remoteTs > localTs) {
+        // Remote is authoritative — first sign-in here, or this device is behind.
+        const merged = C.mergeData(remote);
+        merged.userToken    = kvKey;          // never stored in profile — must set explicitly
+        merged.workerUrl    = oldWorkerUrl || merged.workerUrl;
+        merged.authMethod   = 'google';
+        merged.linkedGoogle = profile;
+        merged.lastModified = remoteTs;
+        merged.syncDirty    = false;
+        C.onSignedIn(merged, false);
+      } else {
+        // Local is newer or has unsynced changes — keep it. Adopt only the
+        // Google identity fields, then push local up so the server catches up.
+        console.info('[Auth] keeping local data on re-auth (dirty=%s local=%s remote=%s)',
+                     dirty, localTs, remoteTs);
+        d.authMethod   = 'google';
+        d.linkedGoogle = profile;
+        d.userToken    = kvKey;
+        d.workerUrl    = oldWorkerUrl || d.workerUrl;
+        C.setData(d);
+        C.onSignedIn(d, false, { keepLocal: true });
+        try { await C.pushToWorker(); } catch(err) {
+          console.warn('[Auth] post-reauth push failed — sync ping will retry:', err);
+        }
+      }
+
+      return { ok: true, isNewAccount: false, profile };
     }
 
-    // Store ID token for session verification at next boot
-    store.set(C.storageAuthKey, idToken);
+    // New Google account — nothing stored remotely, so local is authoritative.
+    const d = getData();
+    d.authMethod   = 'google';
+    d.linkedGoogle = profile;
+    d.userToken    = kvKey; // kvKey is "google:<sub>" — stable permanent ID
+    d.workerUrl    = oldWorkerUrl;
+    C.setData(d);
+    C.onSignedIn(d, true);
 
-    return { ok: true, isNewAccount, profile };
+    return { ok: true, isNewAccount: true, profile };
   }
 
   // ── signInWithGoogle() ───────────────────────────────────────────
@@ -430,6 +608,7 @@ const Auth = (() => {
       google.accounts.id.cancel();
       if(email) google.accounts.id.revoke(email, () => {});
     }
+    _clearTokenRefresh();
     store.set(C.storageAuthKey, null);
     d.linkedGoogle = null;
     // Keep authMethod as 'google' — don't silently downgrade.
@@ -498,11 +677,20 @@ const Auth = (() => {
 
     // 1. Google session check
     if(isGoogleAccount() && workerBase()) {
-      const valid = await verifyGoogleSession();
+      let valid = await verifyGoogleSession();
+      if(!valid) {
+        // Try a silent refresh before interrupting the user — the stored
+        // token has almost certainly just aged past its one-hour life.
+        await waitForGIS();
+        if(await _silentRefresh()) valid = await verifyGoogleSession();
+      }
       if(!valid) {
         C.onSessionExpired();
         return false;
       }
+      // Session is good — arm the refresh timer so it never silently ages out
+      // mid-session the way it did before.
+      _scheduleTokenRefresh(store.get(C.storageAuthKey));
     }
 
     // 2. Legacy token upgrade prompt
@@ -535,6 +723,8 @@ const Auth = (() => {
     if(base) {
       const body = JSON.stringify(data);
       _authHeaders('PUT', newToken, body).then(authHdrs => {
+        // Fail closed — an unsigned PUT is a guaranteed 401, not a write.
+        if(!authHdrs) return;
         fetch(`${base}/storage/${encodeURIComponent(newToken)}/profile`, {
           method:  'PUT',
           headers: { 'Content-Type': 'application/json', ...authHdrs },
@@ -1280,7 +1470,10 @@ const Auth = (() => {
         let ok = false;
         try {
           const body    = JSON.stringify(payload);
-          const authHdrs = await _authHeaders('PUT', newToken, body).catch(() => ({}));
+          const authHdrs = await _authHeaders('PUT', newToken, body);
+          // Fail closed — an unsigned PUT would 401 and the upgrade would
+          // report success while having written nothing.
+          if(!authHdrs) throw new Error('cannot sign upgrade request');
           const res = await fetch(`${base}/storage/${encodeURIComponent(newToken)}/profile`, {
             method:  'PUT',
             headers: { 'Content-Type': 'application/json', ...authHdrs },
@@ -1373,6 +1566,9 @@ const Auth = (() => {
     refreshGoogleSession,   // re-auth screen for expired Google sessions
     signOutGoogle,          // revoke session locally
     verifyGoogleSession,    // call at boot for Google accounts
+    ensureFreshSession,     // refresh credential if near/past expiry, else prompt
+    isTokenExpired,         // (skewMs) → true if credential is dead or dying
+    tokenExpiresAt,         // ms epoch expiry of stored credential, 0 if none
 
     // Boot helpers
     bootCheck,              // call after worker pull in DOMContentLoaded
