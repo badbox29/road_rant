@@ -269,15 +269,44 @@ async function handleStorage(request, env, pathname, cors) {
     let parsed; try { parsed = JSON.parse(bodyText); } catch { return respond(JSON.stringify({ error: 'Invalid JSON' }), 400, cors); }
     const auth = await checkKvAuth(request, token, cors, bodyText, env);
     if (!auth.ok) return auth.response;
+
+    // Timestamp guard — reject writes that would clobber a newer stored copy.
+    // Only applies to object bodies that carry a numeric lastModified.
+    // Writes without one (arrays, imports, migrations) pass through untouched
+    // so we never block a legitimate bulk write.
+    if (parsed && !Array.isArray(parsed) && typeof parsed.lastModified === 'number') {
+      const existingRaw = await kv.get(kvKey, { type: 'text' });
+      if (existingRaw) {
+        let storedAt = 0;
+        try {
+          const existing = JSON.parse(existingRaw);
+          if (existing && typeof existing.lastModified === 'number') storedAt = existing.lastModified;
+        } catch { /* unparseable stored value — let the write through */ }
+        if (storedAt > parsed.lastModified) {
+          return respond(JSON.stringify({
+            error:       'Stale write — stored copy is newer',
+            conflict:    true,
+            storedAt,
+            submittedAt: parsed.lastModified,
+          }), 409, cors);
+        }
+      }
+    }
+
     // Legacy pointer
     if (parsed._legacyToken && isValidToken(parsed._legacyToken) && parsed._legacyToken !== token) {
       await kv.put(`legacy:${parsed._legacyToken}`, token, { expirationTtl: 60 * 60 * 24 * 90 });
     }
     delete parsed._legacyToken;
     await kv.put(kvKey, JSON.stringify(parsed), { expirationTtl: KV_TTL });
-    // If incidents were updated, rebuild feed indexes
-    if (userKey === 'incidents' && Array.isArray(parsed)) {
-      await updateFeedIndexes(token, parsed, kv);
+    // If incidents were updated, rebuild feed indexes.
+    // Accepts both the legacy bare array and the timestamped envelope
+    // { lastModified, incidents: [...] } that the stale-write guard needs.
+    if (userKey === 'incidents') {
+      const list = Array.isArray(parsed) ? parsed
+                 : Array.isArray(parsed?.incidents) ? parsed.incidents
+                 : null;
+      if (list) await updateFeedIndexes(token, list, kv);
     }
     return respond(JSON.stringify({ ok: true }), 200, cors);
   }
